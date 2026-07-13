@@ -1,0 +1,207 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Information about a member of GABdev",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "bio": { "type": "string" },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "role": { "type": "string", "enum": ["développeur", "designer", "entrepreneur", "admin"] },
+        "points": { "type": "number" },
+        "badges": { "type": "array", "items": { "type": "string" } },
+        "joinedAt": { "type": "string", "format": "date-time" },
+        "notificationPreferences": {
+          "type": "object",
+          "properties": {
+            "emailDigest": { "type": "boolean" },
+            "pushEnabled": { "type": "boolean" },
+            "realTime": { "type": "boolean" }
+          }
+        },
+        "pushToken": { "type": "string" },
+        "groups": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["uid", "email", "displayName", "joinedAt"]
+    },
+    "Notification": {
+      "title": "User Notification",
+      "description": "Real-time alert for a user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["social", "system", "news"] },
+        "read": { "type": "boolean" },
+        "link": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "message", "read", "createdAt"]
+    },
+    "Post": {
+      "title": "Forum Post",
+      "description": "A discussion topic or question on the forum",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "likesCount": { "type": "number" },
+        "commentsCount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "title", "content", "createdAt"]
+    },
+    "Comment": {
+      "title": "Post Comment",
+      "description": "A reply to a forum post",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "postId": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["postId", "authorId", "content", "createdAt"]
+    },
+    "Project": {
+      "title": "Showcase Project",
+      "description": "A project built by a Gabonese developer",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "demoUrl": { "type": "string" },
+        "githubUrl": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "name", "description", "createdAt"]
+    },
+    "Article": {
+      "title": "Blog Article",
+      "description": "News and expert advice articles",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "excerpt": { "type": "string" },
+        "content": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "authorName": { "type": "string" },
+        "category": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "content", "createdAt"]
+    },
+    "Newsletter": {
+      "title": "Newsletter Subscription",
+      "description": "Emails for GABdev updates",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "subscribedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "subscribedAt"]
+    },
+    "Group": {
+      "title": "Community Group",
+      "description": "A group or space within the GABdev Hub",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "memberCount": { "type": "number" },
+        "category": { "type": "string", "enum": ["général", "tech", "business", "design"] },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "description", "createdAt"]
+    },
+    "TrainingModule": {
+      "title": "AI Training Module",
+      "description": "A structural unit of the AI training program",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "order": { "type": "number" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "lessons": { 
+          "type": "array", 
+          "items": { 
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "content": { "type": "string" },
+              "practicalExercise": { "type": "string" }
+            }
+          } 
+        }
+      },
+      "required": ["title", "description", "order"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Forum posts"
+    },
+    "/posts/{postId}/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Comments on posts"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Showcase projects"
+    },
+    "/articles/{articleId}": {
+      "schema": "Article",
+      "description": "Expert blog articles"
+    },
+    "/newsletter/{email}": {
+      "schema": "Newsletter",
+      "description": "Newsletter subscribers"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "User notifications"
+    },
+    "/groups/{groupId}": {
+      "schema": "Group",
+      "description": "Hub groups"
+    },
+    "/groups/{groupId}/members/{userId}": {
+      "schema": "User",
+      "description": "Group members"
+    },
+    "/training-modules/{moduleId}": {
+      "schema": "TrainingModule",
+      "description": "AI Training content"
+    },
+    "/users/{userId}/progress/{moduleId}": {
+      "schema": "object",
+      "description": "User training progress tracking"
+    }
+  }
+}

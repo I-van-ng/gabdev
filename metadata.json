@@ -1,0 +1,8 @@
+{
+  "name": "GABdev - La Plateforme de l'Élite Tech Gabonaise  2",
+  "description": "Communauté, Forum, Vitrine de Projets et Assistant IA pour les développeurs du Gabon.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": []
+}

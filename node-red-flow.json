@@ -1,0 +1,96 @@
+
+[
+    {
+        "id": "gabdev_tab",
+        "type": "tab",
+        "label": "GABdev Dashboard",
+        "disabled": false,
+        "info": "Flux principal pour la plateforme GABdev et son intégration Dashboard."
+    },
+    {
+        "id": "gabdev_ui_group",
+        "type": "ui_group",
+        "name": "Plateforme GABdev",
+        "tab": "gabdev_ui_tab",
+        "order": 1,
+        "disp": false,
+        "width": "24"
+    },
+    {
+        "id": "gabdev_ui_tab",
+        "type": "ui_tab",
+        "name": "GABdev",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "gabdev_template",
+        "type": "ui_template",
+        "z": "gabdev_tab",
+        "group": "gabdev_ui_group",
+        "name": "Interface GABdev",
+        "order": 1,
+        "width": "24",
+        "height": "20",
+        "format": "<!-- Code HTML pour le noeud Template Node-RED -->\n<div style=\"height: 85vh; width: 100%; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); background: #000;\">\n    <iframe \n        src=\"http://localhost:5173\" \n        style=\"width: 100%; height: 100%; border: none;\"\n        allow=\"microphone;\"\n    ></iframe>\n</div>\n\n<style>\n    /* Masquer les éléments inutiles du Dashboard pour l'esthétique */\n    .nr-dashboard-header { display: none !important; }\n    .nr-dashboard-container { padding: 0 !important; background: #000 !important; }\n    md-card { margin: 0 !important; background: transparent !important; box-shadow: none !important; }\n    body.nr-dashboard-theme { background: #000 !important; }\n</style>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "x": 380,
+        "y": 200,
+        "wires": [
+            [
+                "gabdev_debug"
+            ]
+        ]
+    },
+    {
+        "id": "gabdev_http_in",
+        "type": "http in",
+        "z": "gabdev_tab",
+        "name": "API Join Endpoint",
+        "url": "/gabdev/join",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "gabdev_debug",
+                "gabdev_response"
+            ]
+        ]
+    },
+    {
+        "id": "gabdev_debug",
+        "type": "debug",
+        "z": "gabdev_tab",
+        "name": "Réception Données",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 620,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "gabdev_response",
+        "type": "http response",
+        "z": "gabdev_tab",
+        "name": "Réponse Success",
+        "statusCode": "200",
+        "headers": {},
+        "x": 360,
+        "y": 120,
+        "wires": []
+    }
+]

@@ -1,0 +1,100 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Common helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // USER RULES
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn(); // We might want to list users
+      allow create: if isOwner(userId) && 
+        request.resource.data.keys().hasAll(['uid', 'email', 'displayName', 'joinedAt']) &&
+        request.resource.data.uid == userId;
+      allow update: if isOwner(userId) && 
+        request.resource.data.uid == userId &&
+        request.resource.data.joinedAt == resource.data.joinedAt;
+    }
+
+    // POST RULES
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn() && 
+        request.resource.data.authorId == request.auth.uid &&
+        request.resource.data.likesCount == 0;
+      allow update: if (isOwner(resource.data.authorId) && request.resource.data.authorId == resource.data.authorId) 
+        || (isSignedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likesCount']));
+      allow delete: if isOwner(resource.data.authorId);
+      
+      // COMMENT RULES
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+        allow delete: if isOwner(resource.data.authorId);
+      }
+    }
+
+    // PROJECT RULES
+    match /projects/{projectId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isOwner(resource.data.authorId) && request.resource.data.authorId == resource.data.authorId;
+      allow delete: if isOwner(resource.data.authorId);
+    }
+
+    // ARTICLE RULES
+    match /articles/{articleId} {
+      allow read: if true;
+      allow write: if isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // RESOURCE RULES
+    match /resources/{resourceId} {
+      allow read: if true;
+      allow write: if isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // NOTIFICATION RULES
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow create: if isSignedIn(); // Allow other users/system to create notifications
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // GROUP RULES
+    match /groups/{groupId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      
+      match /members/{userId} {
+        allow read: if true;
+        allow create: if isSignedIn() && request.auth.uid == userId;
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // NEWSLETTER RULES
+    match /newsletter/{email} {
+      allow create: if true; // Open to all
+      allow read: if isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+  }
+}

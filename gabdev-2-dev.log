@@ -1,0 +1,9 @@
+
+> gabdev-platform@1.0.0 dev
+> tsx server.ts
+
+GABdev Server running on http://localhost:3000
+Swagger docs available at http://localhost:3000/api-docs
+[2m15:55:17[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/Hero.tsx[22m
+[2m15:55:17[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/Hero.tsx[22m
+[2m15:59:41[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/CreatorBio.tsx[22m

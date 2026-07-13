@@ -1,0 +1,2 @@
+⚠️ VAPID keys not configured. Push notifications will be disabled.
+Run "npx web-push generate-vapid-keys" and set VITE_VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY in your environment.
