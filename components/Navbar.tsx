@@ -122,7 +122,7 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
           </svg>
         </div>
         <span className="text-xl font-black tracking-tight">
-          GAB<span className="text-[#22c55e]">dev</span>
+          Dev<span className="text-[#22c55e]">GAB</span>
         </span>
       </div>
 
@@ -162,7 +162,7 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-green-500 transition-colors" />
         <input
           type="text"
-          placeholder="Rechercher sur GABdev..."
+          placeholder="Rechercher sur DevGAB..."
           className="w-full bg-zinc-900 border border-white/5 rounded-2xl pl-12 pr-4 py-2.5 text-xs text-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all font-medium"
         />
       </div>
