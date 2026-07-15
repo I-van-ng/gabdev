@@ -56,7 +56,7 @@ const ViewLayout: React.FC<ViewLayoutProps> = (props: ViewLayoutProps) => {
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white uppercase leading-[0.9]">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter text-white uppercase leading-[0.9]">
             {title.split(" ").map((word: string, i: number) => (
               <span
                 key={i}

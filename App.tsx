@@ -52,6 +52,7 @@ const App: React.FC = () => {
   // Synchroniser le hash de l'URL avec l'état de la vue
   useEffect(() => {
     window.location.hash = `#/${currentView}`;
+    window.scrollTo(0, 0); // Toujours remonter en haut de la page lors d'un changement de vue
   }, [currentView]);
 
   // Écouter les changements du bouton Retour / Suivant du navigateur
@@ -158,7 +159,11 @@ const App: React.FC = () => {
     <AuthProvider>
       <NotificationProvider>
         <div className="min-h-screen flex flex-col relative">
-          <Navbar setView={setCurrentView} currentView={currentView} />
+          <Navbar 
+            setView={setCurrentView} 
+            currentView={currentView} 
+            openSearch={() => setIsPaletteOpen(true)} 
+          />
           
           <main className="flex-grow">
             {renderView()}

@@ -816,6 +816,196 @@ const TrainingHub: React.FC<TrainingHubProps> = () => {
     });
   };
 
+  const loadAntigravityCourse = () => {
+    setGeneratedCourse({
+      title: "Maîtriser Antigravity : L'Art du Vibe Coding de A à Z",
+      description: "Apprenez à collaborer avec l'agent d'IA le plus puissant de Google DeepMind. Maîtrisez le Vibe Coding, formulez des requêtes d'élite, pilotez l'exploration de code en mode autonome et validez les plans d'exécution complexes.",
+      modules: [
+        {
+          title: "Module 1 : L'Art du Vibe Coding & Rôle de Chef d'Orchestre",
+          concepts: ["Vibe Coding", "Agent Autonome", "Prompting d'Intention", "Google DeepMind"],
+          exercise: "Simulez une interaction de démarrage : demandez à Antigravity de planifier une nouvelle fonctionnalité de tableau de bord sans écrire de code directement, en évaluant sa capacité à comprendre le design global.",
+          starterCode: `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0b0f19; color: #f1f5f9; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="p-8 rounded-3xl border border-white/10 bg-zinc-900/60 max-w-md text-center shadow-2xl space-y-6">
+    <div class="w-20 h-20 bg-zinc-800 rounded-3xl flex items-center justify-center mx-auto border border-white/10 shadow-lg relative overflow-hidden group">
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-50 blur-md" />
+      <svg class="w-12 h-12 relative z-10" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="anti-logo-m1" x1="0%" y1="100%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#2563eb" />
+            <stop offset="20%" stopColor="#06b6d4" />
+            <stop offset="40%" stopColor="#10b981" />
+            <stop offset="60%" stopColor="#fbbf24" />
+            <stop offset="80%" stopColor="#ea580c" />
+            <stop offset="100%" stopColor="#db2777" />
+          </linearGradient>
+        </defs>
+        <path d="M15,80 C15,45 30,15 50,15 C70,15 85,45 85,80 C85,80 72,80 72,80 C72,52 62,30 50,30 C38,30 28,52 28,80 Z" fill="url(#anti-logo-m1)" />
+      </svg>
+    </div>
+    <h2 class="text-xl font-bold uppercase tracking-tight">Antigravity Terminal M1</h2>
+    <p class="text-xs text-zinc-400">Consigne : Tapez votre requête de planification ci-dessous pour lancer l'agent de Vibe Coding.</p>
+    <div class="space-y-3 text-left">
+      <textarea id="prompt" placeholder="Ex: Planifie l'ajout d'une section météo dans le dashboard..." class="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-blue-500 min-h-20 transition-all font-medium"></textarea>
+      <button onclick="startVibe()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-blue-600/20">Lancer l'Agent</button>
+    </div>
+    <div id="output" class="p-4 bg-black/40 rounded-xl text-[11px] font-mono text-green-500 text-left min-h-12 border border-white/5 hidden"></div>
+  </div>
+  <script>
+    function startVibe() {
+      const p = document.getElementById('prompt').value.trim();
+      const out = document.getElementById('output');
+      if (p) {
+        out.classList.remove('hidden');
+        out.innerHTML = "🪐 Antigravity en cours de planification...<br>[INFO] Analyse du projet en cours...<br>[INFO] Création du plan dans implementation_plan.md...<br>[SUCCÈS] Prêt pour exécution.";
+      }
+    }
+  </script>
+</body>
+</html>`
+        },
+        {
+          title: "Module 2 : La Recherche Autonome & Exploration",
+          concepts: ["Analyse de Codebase", "Recherche Grep", "Lecture de Fichier", "Détection d'Architecture"],
+          exercise: "Simulez une recherche technique : demandez à Antigravity de localiser un composant UI existant dans le projet et d'analyser ses propriétés sans intervention manuelle.",
+          starterCode: `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0b0f19; color: #f1f5f9; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="p-8 rounded-3xl border border-white/10 bg-zinc-900/60 max-w-md w-full shadow-2xl space-y-6">
+    <h2 class="text-lg font-bold text-center uppercase tracking-tight text-cyan-400">Grep Search Simulator</h2>
+    <p class="text-xs text-zinc-400 text-center">Trouvez où sont déclarées les variables ou les fonctions de notre site.</p>
+    <div class="space-y-4">
+      <input id="query" type="text" placeholder="Entrez le terme à chercher (ex: onGoToServices)" class="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-xs font-semibold">
+      <button onclick="search()" class="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-black font-black rounded-xl transition-all shadow-lg shadow-cyan-500/10 text-xs uppercase tracking-widest">Rechercher dans le projet</button>
+      <div id="results" class="p-4 bg-black/40 rounded-xl text-[10px] font-mono text-zinc-300 text-left min-h-16 border border-white/5 hidden overflow-x-auto"></div>
+    </div>
+  </div>
+  <script>
+    function search() {
+      const q = document.getElementById('query').value.trim();
+      const res = document.getElementById('results');
+      res.classList.remove('hidden');
+      if (q.toLowerCase().includes('ongotoservices')) {
+        res.innerHTML = "🔍 Match trouvé dans components/JoinHub.tsx (Ligne 18)<br><span class='text-zinc-600'>18: const JoinHub: React.FC&lt;JoinHubProps&gt; = ({ onGoToServices }) =&gt; {</span>";
+      } else {
+        res.innerHTML = "🔍 Recherche de '" + q + "'... Aucun match exact trouvé dans le cache du composant.";
+      }
+    }
+  </script>
+</body>
+</html>`
+        },
+        {
+          title: "Module 3 : Édition de Code Sécurisée & Remplacements",
+          concepts: ["replace_file_content", "multi_replace_file_content", "Diff Blocks", "Préservation des Docstrings"],
+          exercise: "Configurez une demande de modification de code en ciblant précisément les lignes d'un bloc sans altérer le reste du fichier.",
+          starterCode: `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0b0f19; color: #f1f5f9; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="p-8 rounded-3xl border border-white/10 bg-zinc-900/60 max-w-lg w-full shadow-2xl space-y-6">
+    <h2 class="text-lg font-bold text-center uppercase tracking-tight text-pink-500">Simulateur de Code Diff</h2>
+    <p class="text-xs text-zinc-400 text-center">Visualisez comment Antigravity applique des modifications ciblées.</p>
+    <div class="grid grid-cols-2 gap-4 text-left font-mono text-[10px]">
+      <div class="p-4 bg-red-900/20 border border-red-500/20 rounded-xl space-y-1">
+        <div class="text-red-500 font-bold uppercase mb-2">Avant modification</div>
+        <div>const add = (a, b) => {</div>
+        <div class="bg-red-500/20 text-red-300">-  return a + b;</div>
+        <div>}</div>
+      </div>
+      <div class="p-4 bg-green-900/20 border border-green-500/20 rounded-xl space-y-1">
+        <div class="text-green-500 font-bold uppercase mb-2">Après modification</div>
+        <div>const add = (a, b) => {</div>
+        <div class="bg-green-500/20 text-green-300">+  if (typeof a !== 'number') return 0;</div>
+        <div class="bg-green-500/20 text-green-300">+  return a + b;</div>
+        <div>}</div>
+      </div>
+    </div>
+    <div class="text-center">
+      <button onclick="applyDiff()" class="px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-pink-500/20 text-xs uppercase tracking-widest active:scale-95">Appliquer la Modification</button>
+      <p id="msg" class="text-xs text-green-400 mt-3 font-semibold hidden">✓ Remplacement appliqué avec succès sans toucher aux autres fonctions !</p>
+    </div>
+  </div>
+  <script>
+    function applyDiff() {
+      document.getElementById('msg').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>`
+        },
+        {
+          title: "Module 4 : Validation, Exécution & Clôture de Tâche",
+          concepts: ["task.md", "walkthrough.md", "run_command", "Vérification Non-Régressive"],
+          exercise: "Validez la conformité du code produit : exécutez un script de test, examinez son statut, puis générez le fichier walkthrough.md récapitulant les modifications.",
+          starterCode: `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0b0f19; color: #f1f5f9; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="p-8 rounded-3xl border border-white/10 bg-zinc-900/60 max-w-md w-full shadow-2xl text-center space-y-6">
+    <h2 class="text-lg font-bold uppercase tracking-tight text-green-500">Console de Validation de Tâches</h2>
+    <p class="text-xs text-zinc-400">Exécutez vos tests pour valider le code d'Antigravity.</p>
+    
+    <div class="p-4 bg-black/60 rounded-xl text-left space-y-2 border border-white/5">
+      <div class="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+        <span>✓ task.md initialisé</span>
+        <span class="text-green-500">[OK]</span>
+      </div>
+      <div class="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+        <span>✓ Modifications appliquées</span>
+        <span class="text-green-500">[OK]</span>
+      </div>
+      <div id="test-row" class="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+        <span>⚙ Exécution de 'npm test'</span>
+        <span id="test-status" class="text-yellow-500">[EN COURS...]</span>
+      </div>
+    </div>
+    
+    <button onclick="runTest()" class="w-full py-3 bg-green-500 hover:bg-green-600 text-black font-black rounded-xl text-xs uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-green-500/10">Lancer les Tests</button>
+  </div>
+  <script>
+    function runTest() {
+      const status = document.getElementById('test-status');
+      status.className = "text-green-500";
+      status.innerHTML = "[SUCCÈS (4/4 PASSÉS)]";
+      alert("Félicitations ! Les tests unitaires sont passés au vert. Vous pouvez générer le walkthrough.md.");
+    }
+  </script>
+</body>
+</html>`
+        }
+      ]
+    });
+  };
+
   const loadWebBasicsCourse = () => {
     setGeneratedCourse({
       title: "HTML, CSS & JavaScript : Le Guide Complet de A à Z",
@@ -1098,6 +1288,18 @@ const TrainingHub: React.FC<TrainingHubProps> = () => {
                   <div className="grid grid-cols-1 gap-2">
                     <button
                       type="button"
+                      onClick={() => loadAntigravityCourse()}
+                      className="p-3.5 rounded-2xl bg-black/40 border border-blue-500/30 hover:border-green-500/30 text-left transition-all flex items-center justify-between group cursor-pointer shadow-[0_0_15px_rgba(59,130,246,0.05)]"
+                    >
+                      <div>
+                        <span className="text-[10px] font-black text-white uppercase tracking-wider block">🪐 Antigravity & Vibe Coding</span>
+                        <span className="text-[9px] text-[#3b82f6] font-semibold block mt-0.5">Maîtrisez le Vibe Coding de A à Z avec l'IA de DeepMind</span>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-green-500 transition-colors shrink-0" />
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={() => loadWebBasicsCourse()}
                       className="p-3.5 rounded-2xl bg-black/40 border border-white/5 hover:border-green-500/30 text-left transition-all flex items-center justify-between group cursor-pointer"
                     >
@@ -1179,13 +1381,47 @@ const TrainingHub: React.FC<TrainingHubProps> = () => {
                     exit={{ opacity: 0, x: -20 }}
                     className="space-y-6"
                   >
-                    <div className="p-8 rounded-[32px] border border-white/5 bg-zinc-900/10">
-                      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-green-500 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full">
-                        Parcours personnalisé généré
-                      </span>
-                      <h2 className="text-3xl font-black text-white mt-4 mb-2 uppercase tracking-tight">{generatedCourse.title}</h2>
-                      <p className="text-sm text-zinc-400 leading-relaxed font-medium">{generatedCourse.description}</p>
-                    </div>
+                    {generatedCourse.title.toLowerCase().includes("antigravity") ? (
+                      <div className="relative w-full p-8 rounded-[32px] overflow-hidden bg-gradient-to-r from-blue-950 via-zinc-950 to-slate-950 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6 group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-50 blur-xl pointer-events-none" />
+                        <div className="relative z-10 flex-1 flex flex-col justify-center text-center sm:text-left">
+                          <span className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full w-fit mx-auto sm:mx-0 mb-4">
+                            Formation Officielle
+                          </span>
+                          <h2 className="text-3xl font-black text-white uppercase tracking-tight leading-none mb-3">
+                            {generatedCourse.title}
+                          </h2>
+                          <p className="text-sm text-zinc-400 leading-relaxed font-medium">{generatedCourse.description}</p>
+                          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-3">Conçu par Google DeepMind</p>
+                        </div>
+                        <div className="relative z-10 w-24 h-24 flex items-center justify-center bg-zinc-900/60 rounded-3xl border border-white/10 shadow-2xl shrink-0">
+                          <svg className="w-16 h-16 animate-pulse" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                              <linearGradient id="antigravity-logo-grad" x1="0%" y1="100%" x2="100%" y2="100%">
+                                <stop offset="0%" stopColor="#2563eb" />
+                                <stop offset="20%" stopColor="#06b6d4" />
+                                <stop offset="40%" stopColor="#10b981" />
+                                <stop offset="60%" stopColor="#fbbf24" />
+                                <stop offset="80%" stopColor="#ea580c" />
+                                <stop offset="100%" stopColor="#db2777" />
+                              </linearGradient>
+                            </defs>
+                            <path 
+                              d="M15,80 C15,45 30,15 50,15 C70,15 85,45 85,80 C85,80 72,80 72,80 C72,52 62,30 50,30 C38,30 28,52 28,80 Z" 
+                              fill="url(#antigravity-logo-grad)" 
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-8 rounded-[32px] border border-white/5 bg-zinc-900/10">
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-green-500 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full">
+                          Parcours personnalisé généré
+                        </span>
+                        <h2 className="text-3xl font-black text-white mt-4 mb-2 uppercase tracking-tight">{generatedCourse.title}</h2>
+                        <p className="text-sm text-zinc-400 leading-relaxed font-medium">{generatedCourse.description}</p>
+                      </div>
+                    )}
  
                     <div className="space-y-4">
                       {generatedCourse.modules.map((mod, index) => (

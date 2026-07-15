@@ -26,9 +26,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     let unsubscribeProfile: (() => void) | null = null;
 
+    const checkGuestUser = () => {
+      const savedGuest = localStorage.getItem("gabdev_guest_user");
+      if (savedGuest) {
+        const guestData = JSON.parse(savedGuest);
+        setUser(guestData.user);
+        setProfile(guestData.profile);
+        setLoading(false);
+        return true;
+      }
+      return false;
+    };
+
+    const handleGuestLogin = () => {
+      checkGuestUser();
+    };
+
+    const handleGuestLogout = () => {
+      setUser(null);
+      setProfile(null);
+      setLoading(false);
+    };
+
+    window.addEventListener("gabdev_guest_login", handleGuestLogin);
+    window.addEventListener("gabdev_guest_logout", handleGuestLogout);
+
+    // Check if we already have a guest user loaded
+    const hasGuest = checkGuestUser();
+
     const unsubscribeAuth = onAuthStateChanged(
       auth,
       async (authUser: User | null) => {
+        // If we have a local guest user, ignore the null auth state from Firebase
+        if (!authUser && localStorage.getItem("gabdev_guest_user")) {
+          checkGuestUser();
+          return;
+        }
+
         setUser(authUser);
 
         if (unsubscribeProfile) {
@@ -56,6 +90,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       unsubscribeAuth();
       if (unsubscribeProfile) unsubscribeProfile();
+      window.removeEventListener("gabdev_guest_login", handleGuestLogin);
+      window.removeEventListener("gabdev_guest_logout", handleGuestLogout);
     };
   }, []);
 

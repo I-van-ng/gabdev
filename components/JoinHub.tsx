@@ -23,7 +23,7 @@ const JoinHub: React.FC<JoinHubProps> = ({ onGoToServices }) => {
           <div className="space-y-8">
             <h2
               id="join-title"
-              className="text-6xl md:text-8xl font-black mb-10 leading-[0.9] tracking-tighter"
+              className="text-4xl sm:text-6xl md:text-8xl font-black mb-10 leading-[0.9] tracking-tighter"
             >
               Rejoindre <br /> la communaute. <br />
               <span className="text-[#22c55e]">Simplement.</span>
@@ -51,18 +51,18 @@ const JoinHub: React.FC<JoinHubProps> = ({ onGoToServices }) => {
           </div>
 
           <div className="relative">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-600 rounded-[60px] blur opacity-20 transition duration-1000" />
-            <div className="relative p-12 md:p-16 rounded-[60px] bg-zinc-900/80 border border-white/10 shadow-2xl overflow-hidden backdrop-blur-xl">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-600 rounded-[32px] sm:rounded-[48px] md:rounded-[60px] blur opacity-20 transition duration-1000" />
+            <div className="relative p-5 sm:p-10 md:p-16 rounded-[32px] sm:rounded-[48px] md:rounded-[60px] bg-zinc-900/80 border border-white/10 shadow-2xl overflow-hidden backdrop-blur-xl">
               <div className="space-y-10">
-                <div className="flex items-start gap-6 p-8 rounded-3xl bg-black/40 border border-white/5">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl bg-black/40 border border-white/5 text-center sm:text-left">
                   <div className="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center flex-shrink-0">
                     <Mail className="w-6 h-6 text-zinc-500" />
                   </div>
-                  <div>
+                  <div className="min-w-0 w-full">
                     <h4 className="text-sm font-black text-white uppercase tracking-widest mb-1">
                       Contact direct
                     </h4>
-                    <p className="text-xs text-zinc-500 font-bold">
+                    <p className="text-xs text-zinc-500 font-bold break-all">
                       ivanndoumbanguia@gmail.com
                     </p>
                   </div>
@@ -77,32 +77,32 @@ const JoinHub: React.FC<JoinHubProps> = ({ onGoToServices }) => {
                     href={WHATSAPP_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group w-full bg-[#22c55e] hover:bg-[#16a34a] text-black py-6 rounded-[24px] text-lg font-black tracking-widest transition-all active:scale-[0.98] uppercase flex items-center justify-center gap-4 shadow-xl shadow-green-500/10"
+                    className="group w-full bg-[#22c55e] hover:bg-[#16a34a] text-black py-4 sm:py-6 rounded-[16px] sm:rounded-[24px] text-xs sm:text-sm md:text-lg font-black tracking-wider md:tracking-widest transition-all active:scale-[0.98] uppercase flex items-center justify-center gap-3 sm:gap-4 shadow-xl shadow-green-500/10"
                   >
                     Rejoindre via WhatsApp
-                    <MessageCircle className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" />
+                    <MessageCircle className="w-4 h-4 sm:w-6 sm:h-6 transform group-hover:translate-x-1 transition-transform flex-shrink-0" />
                   </a>
 
                   {onGoToServices && (
                     <button
                       type="button"
                       onClick={onGoToServices}
-                      className="group w-full bg-blue-600 hover:bg-blue-500 text-white py-6 rounded-[24px] text-lg font-black tracking-widest transition-all active:scale-[0.98] uppercase flex items-center justify-center gap-4 shadow-xl shadow-blue-500/10 cursor-pointer"
+                      className="group w-full bg-blue-600 hover:bg-blue-500 text-white py-4 sm:py-6 rounded-[16px] sm:rounded-[24px] text-xs sm:text-sm md:text-lg font-black tracking-wider md:tracking-widest transition-all active:scale-[0.98] uppercase flex items-center justify-center gap-3 sm:gap-4 shadow-xl shadow-blue-500/10 cursor-pointer"
                     >
                       Demander un Devis / Projet
-                      <ArrowRight className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-4 h-4 sm:w-6 sm:h-6 transform group-hover:translate-x-1 transition-transform flex-shrink-0" />
                     </button>
                   )}
 
                   <a
                     href={EMAIL_URL}
-                    className="group w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white py-6 rounded-[24px] text-lg font-black tracking-widest transition-all active:scale-[0.98] uppercase flex items-center justify-center gap-4"
+                    className="group w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white py-4 sm:py-6 rounded-[16px] sm:rounded-[24px] text-xs sm:text-sm md:text-lg font-black tracking-wider md:tracking-widest transition-all active:scale-[0.98] uppercase flex items-center justify-center gap-3 sm:gap-4"
                   >
                     Ecrire par email
-                    <ArrowRight className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 sm:w-6 sm:h-6 transform group-hover:translate-x-1 transition-transform flex-shrink-0" />
                   </a>
 
-                  <p className="text-[10px] text-zinc-600 text-center font-bold px-8 uppercase tracking-widest">
+                  <p className="text-[10px] text-zinc-600 text-center font-bold px-2 sm:px-8 uppercase tracking-wider md:tracking-widest">
                     * Le moyen le plus rapide pour entrer dans la communaute est
                     le groupe WhatsApp GABdev.
                   </p>

@@ -176,3 +176,42 @@ export const generateLearningPath = async (topic: string) => {
     throw error;
   }
 };
+
+export const generateCommunityReply = async (
+  contextType: "post" | "comment",
+  titleOrUserComment: string,
+  postContent?: string
+): Promise<string> => {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Clé API de l'assistant non configurée. Vérifiez .env.local");
+  }
+  const ai = new GoogleGenAI({ apiKey });
+  
+  let prompt = "";
+  if (contextType === "post") {
+    prompt = `Tu es Antigravity, l'agent IA d'élite de Google DeepMind.
+Un développeur de la communauté GABdev a publié un nouveau sujet de discussion :
+Titre : "${titleOrUserComment}"
+Description : "${postContent || ""}"
+
+Rédige une réponse technique, constructive, encourageante et brève en français (maximum 3-4 phrases). Essaie de donner un conseil technique pertinent par rapport au sujet et signe avec "🪐 Antigravity".`;
+  } else {
+    prompt = `Tu es Antigravity, l'agent IA d'élite de Google DeepMind.
+Un membre du forum GABdev t'a interpellé ou a posé une question en commentaire :
+Commentaire de l'utilisateur : "${titleOrUserComment}"
+
+Rédige une réponse chaleureuse, précise et courte en français (maximum 3-4 phrases) pour répondre à sa question ou rebondir sur son commentaire. Signe avec "🪐 Antigravity".`;
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt,
+    });
+    return response.text || "Je suis là pour vous aider ! 🪐 Antigravity";
+  } catch (error) {
+    console.error("Error generating community reply:", error);
+    return "Intéressant ! N'hésitez pas à me donner plus de détails. 🪐 Antigravity";
+  }
+};

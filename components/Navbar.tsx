@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { logout } from "../services/firebase";
+import { signInWithGoogle, signInQuick, logout } from "../services/firebase";
 import {
   User,
   LogOut,
@@ -26,10 +26,11 @@ import { motion, AnimatePresence } from "motion/react";
 interface NavbarProps {
   setView: (view: View) => void;
   currentView: View;
+  openSearch?: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
-  const { setView, currentView } = props;
+  const { setView, currentView, openSearch } = props;
   const { user, profile } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -126,7 +127,7 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
         </span>
       </div>
 
-      <ul className="hidden lg:flex items-center gap-8">
+      <ul className="hidden lg:flex items-center gap-5">
         {navItems.map((item) => (
           <li key={item.label} className="relative group/nav">
             <button
@@ -141,7 +142,7 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
                     : "text-zinc-400 hover:text-white"
               }`}
             >
-              <item.icon className="w-4 h-4" />
+              <item.icon className="w-4 h-4 hidden xl:block" />
               {item.label}
               {item.restricted && !isMember && (
                 <Lock className="w-3 h-3 text-zinc-400/50" />
@@ -157,15 +158,18 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
         ))}
       </ul>
 
-      {/* Global Search Bar */}
-      <div className="hidden xl:flex items-center relative flex-1 max-w-xs mx-8 group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-green-500 transition-colors" />
-        <input
-          type="text"
-          placeholder="Rechercher sur DevGAB..."
-          className="w-full bg-zinc-900 border border-white/5 rounded-2xl pl-12 pr-4 py-2.5 text-xs text-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all font-medium"
-        />
-      </div>
+      {/* Sleek Search Button (Triggers Command Palette) */}
+      {openSearch && (
+        <button
+          onClick={openSearch}
+          className="hidden lg:flex items-center gap-2 bg-zinc-900/50 hover:bg-zinc-900 border border-white/5 rounded-xl px-3.5 py-2 text-xs text-zinc-500 hover:text-zinc-300 transition-all font-medium mx-4 cursor-pointer"
+          title="Rechercher (Ctrl + K)"
+        >
+          <Search className="w-3.5 h-3.5 shrink-0" />
+          <span>Rechercher...</span>
+          <kbd className="text-[9px] bg-black border border-white/10 px-1.5 py-0.5 rounded text-zinc-500 font-mono ml-2">⌘K</kbd>
+        </button>
+      )}
 
       <div className="flex items-center gap-4">
         {/* Notifications */}
@@ -258,14 +262,25 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
             </div>
           </div>
         ) : (
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-[#22c55e] hover:bg-[#16a34a] text-black px-6 py-2.5 rounded-xl text-[11px] font-black tracking-widest transition-all uppercase shadow-[0_0_20px_rgba(34,197,94,0.2)] active:scale-95"
-          >
-            REJOINDRE
-          </a>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={async () => {
+                const name = prompt("Entrez votre pseudo pour vous connecter instantanément (ou laissez vide pour un pseudo aléatoire) :");
+                if (name !== null) await signInQuick(name);
+              }}
+              className="bg-[#22c55e] hover:bg-[#16a34a] text-black px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase active:scale-95 cursor-pointer shadow-[0_0_20px_rgba(34,197,94,0.2)]"
+              title="Connexion ultra-rapide sans compte"
+            >
+              CONNEXION RAPIDE
+            </button>
+            <button
+              onClick={() => signInWithGoogle()}
+              className="bg-transparent hover:bg-white/5 border border-white/10 text-white px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all uppercase active:scale-95 cursor-pointer"
+              title="Se connecter avec un compte Google"
+            >
+              CONNEXION GOOGLE
+            </button>
+          </div>
         )}
 
         {/* Hamburger Menu Button */}
@@ -282,119 +297,147 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
           )}
         </button>
       </div>
-    </nav>
 
-    {/* Mobile Menu Overlay */}
-    <AnimatePresence>
-      {isMobileMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="lg:hidden w-full bg-zinc-950/98 backdrop-blur-xl border-b border-white/5 overflow-hidden z-30"
-        >
-          <div className="px-6 py-6 flex flex-col gap-6">
-            {/* Search bar inside mobile menu */}
-            <div className="flex items-center relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-[#22c55e] transition-colors" />
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                className="w-full bg-zinc-900 border border-white/5 rounded-2xl pl-12 pr-4 py-3 text-xs text-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all font-medium"
-              />
-            </div>
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="absolute top-full left-0 lg:hidden w-full bg-zinc-950/98 backdrop-blur-xl border-b border-white/5 overflow-hidden z-30"
+          >
+            <div className="px-6 py-6 flex flex-col gap-6">
+              {/* Search bar inside mobile menu */}
+              <div className="flex items-center relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-[#22c55e] transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Rechercher..."
+                  className="w-full bg-zinc-900 border border-white/5 rounded-2xl pl-12 pr-4 py-3 text-xs text-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all font-medium"
+                />
+              </div>
 
-            {/* Navigation Items */}
-            <ul className="flex flex-col gap-4">
-              {navItems.map((item) => (
-                <li key={item.label} className="w-full">
-                  <button
-                    onClick={() => {
-                      setView(item.view);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={`w-full text-left py-3 px-4 rounded-2xl text-xs font-black tracking-widest uppercase transition-all flex items-center justify-between ${
-                      currentView === item.view
-                        ? "text-black bg-[#22c55e]"
-                        : item.highlight
-                          ? "text-amber-500 bg-amber-500/5 border border-amber-500/10"
-                          : "text-zinc-400 hover:text-white bg-white/2 hover:bg-white/5"
-                    }`}
-                  >
-                    <span className="flex items-center gap-3">
-                      <item.icon className="w-4 h-4" />
-                      {item.label}
-                    </span>
-                    {item.restricted && !isMember && (
-                      <Lock className="w-3.5 h-3.5 text-zinc-500" />
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ul>
-
-            {/* Profile / Account section on mobile if logged in */}
-            {user && (
-              <div className="border-t border-white/5 pt-6 flex flex-col gap-4">
-                <div className="flex items-center gap-3 px-4">
-                  <img
-                    src={
-                      user.photoURL ||
-                      `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`
-                    }
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full border border-green-500/30"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="overflow-hidden">
-                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Connecté</p>
-                    <p className="text-xs font-bold text-green-500 truncate">{user.email}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => {
-                      setView("profile");
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="py-3 px-4 bg-zinc-900 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:text-white flex items-center justify-center gap-2"
-                  >
-                    <User className="w-3.5 h-3.5 text-[#22c55e]" />
-                    Mon Profil
-                  </button>
-
-                  {profile?.role === "admin" && (
+              {/* Navigation Items */}
+              <ul className="flex flex-col gap-4">
+                {navItems.map((item) => (
+                  <li key={item.label} className="w-full">
                     <button
                       onClick={() => {
-                        setView("dashboard");
+                        setView(item.view);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`w-full text-left py-3 px-4 rounded-2xl text-xs font-black tracking-widest uppercase transition-all flex items-center justify-between ${
+                        currentView === item.view
+                          ? "text-black bg-[#22c55e]"
+                          : item.highlight
+                            ? "text-amber-500 bg-amber-500/5 border border-amber-500/10"
+                            : "text-zinc-400 hover:text-white bg-white/2 hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="flex items-center gap-3">
+                        <item.icon className="w-4 h-4" />
+                        {item.label}
+                      </span>
+                      {item.restricted && !isMember && (
+                        <Lock className="w-3.5 h-3.5 text-zinc-500" />
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Profile / Account section on mobile if logged in */}
+              {user && (
+                <div className="border-t border-white/5 pt-6 flex flex-col gap-4">
+                  <div className="flex items-center gap-3 px-4">
+                    <img
+                      src={
+                        user.photoURL ||
+                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`
+                      }
+                      alt="Profile"
+                      className="w-10 h-10 rounded-full border border-green-500/30"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="overflow-hidden">
+                      <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Connecté</p>
+                      <p className="text-xs font-bold text-green-500 truncate">{user.email}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => {
+                        setView("profile");
                         setIsMobileMenuOpen(false);
                       }}
                       className="py-3 px-4 bg-zinc-900 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:text-white flex items-center justify-center gap-2"
                     >
-                      <BarChart3 className="w-3.5 h-3.5 text-purple-500" />
-                      Dashboard
+                      <User className="w-3.5 h-3.5 text-[#22c55e]" />
+                      Mon Profil
                     </button>
-                  )}
 
+                    {profile?.role === "admin" && (
+                      <button
+                        onClick={() => {
+                          setView("dashboard");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="py-3 px-4 bg-zinc-900 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:text-white flex items-center justify-center gap-2"
+                      >
+                        <BarChart3 className="w-3.5 h-3.5 text-purple-500" />
+                        Dashboard
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="py-3 px-4 bg-red-500/5 border border-red-500/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 flex items-center justify-center gap-2 col-span-2"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      Déconnexion
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {!user && (
+                <div className="border-t border-white/5 pt-6 flex flex-col gap-3">
+                  <button
+                    onClick={async () => {
+                      const name = prompt("Entrez votre pseudo pour vous connecter :");
+                      if (name !== null) {
+                        await signInQuick(name);
+                        setIsMobileMenuOpen(false);
+                      }
+                    }}
+                    className="w-full py-3 bg-[#22c55e] hover:bg-[#16a34a] text-black rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                  >
+                    <User className="w-3.5 h-3.5" />
+                    Connexion Rapide (1-clic)
+                  </button>
                   <button
                     onClick={() => {
-                      logout();
+                      signInWithGoogle();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="py-3 px-4 bg-red-500/5 border border-red-500/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 flex items-center justify-center gap-2 col-span-2"
+                    className="w-full py-3 bg-zinc-900 border border-white/5 hover:bg-zinc-800 text-zinc-300 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                   >
-                    <LogOut className="w-3.5 h-3.5" />
-                    Déconnexion
+                    <User className="w-3.5 h-3.5" />
+                    Connexion avec Google
                   </button>
                 </div>
-              </div>
-            )}
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
   </>
 );
 };

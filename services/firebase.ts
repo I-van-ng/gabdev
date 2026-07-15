@@ -4,6 +4,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
+  signInAnonymously,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -102,7 +103,65 @@ export const signInWithGoogle = async () => {
   }
 };
 
-export const logout = () => signOut(auth);
+export const signInQuick = async (nickname?: string) => {
+  const finalName = nickname?.trim() || `Hacker_${Math.floor(100 + Math.random() * 900)}`;
+  
+  try {
+    const result = await signInAnonymously(auth);
+    const user = result.user;
+    
+    const userRef = doc(db, "users", user.uid);
+    await setDoc(userRef, {
+      uid: user.uid,
+      displayName: finalName,
+      email: `${finalName.toLowerCase()}@gabdev.local`,
+      photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`,
+      joinedAt: new Date().toISOString(),
+      role: "developpeur",
+      points: 5,
+      badges: ["Rookie"],
+      bio: "Membre du Hub",
+      skills: [],
+      groups: [GLOBAL_GROUP_ID],
+    });
+    
+    return user;
+  } catch (error) {
+    console.warn("Firebase Anonymous Sign-In failed, falling back to local simulated session:", error);
+    
+    const mockUser = {
+      uid: `guest-${Date.now()}`,
+      displayName: finalName,
+      email: `${finalName.toLowerCase()}@gabdev.local`,
+      photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${finalName}`,
+      isAnonymous: true,
+    };
+    
+    const mockProfile = {
+      uid: mockUser.uid,
+      displayName: finalName,
+      email: mockUser.email,
+      photoURL: mockUser.photoURL,
+      joinedAt: new Date().toISOString(),
+      role: "developpeur",
+      points: 5,
+      badges: ["Invité"],
+    };
+    
+    const guestData = { user: mockUser, profile: mockProfile };
+    localStorage.setItem("gabdev_guest_user", JSON.stringify(guestData));
+    
+    window.dispatchEvent(new Event("gabdev_guest_login"));
+    
+    return mockUser;
+  }
+};
+
+export const logout = async () => {
+  localStorage.removeItem("gabdev_guest_user");
+  window.dispatchEvent(new Event("gabdev_guest_logout"));
+  await signOut(auth);
+};
 
 export const getUserProfile = async (uid: string) => {
   const userRef = doc(db, "users", uid);

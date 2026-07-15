@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { db } from "../services/firebase";
+import { db, signInWithGoogle, signInQuick } from "../services/firebase";
 import {
   addDoc,
   collection,
@@ -22,6 +22,7 @@ import {
   Search,
   Tag,
 } from "lucide-react";
+import { generateCommunityReply } from "../services/geminiService";
 
 interface Post {
   id: string;
@@ -35,6 +36,14 @@ interface Post {
   createdAt: any;
 }
 
+interface Comment {
+  id: string;
+  authorId: string;
+  authorName: string;
+  content: string;
+  createdAt: any;
+}
+
 const Community: React.FC = () => {
   const { user, profile } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
@@ -42,6 +51,11 @@ const Community: React.FC = () => {
   const [newPost, setNewPost] = useState({ title: "", content: "", tags: "" });
   const [showEditor, setShowEditor] = useState(false);
   const [searching, setSearching] = useState("");
+
+  const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
+  const [comments, setComments] = useState<{ [postId: string]: Comment[] }>({});
+  const [loadingComments, setLoadingComments] = useState<{ [postId: string]: boolean }>({});
+  const [commentInputs, setCommentInputs] = useState<{ [postId: string]: string }>({});
 
   const getPostDate = (createdAt: Post["createdAt"]) => {
     if (createdAt?.toDate) return createdAt.toDate();
@@ -61,7 +75,12 @@ const Community: React.FC = () => {
         (entry: QueryDocumentSnapshot) =>
           ({ id: entry.id, ...entry.data() }) as Post,
       );
-      setPosts(postsData);
+      
+      // Charger également les posts locaux (LocalStorage)
+      const localPosts = JSON.parse(localStorage.getItem("gabdev_local_posts") || "[]");
+      
+      // Fusionner les posts
+      setPosts([...localPosts, ...postsData]);
       setLoading(false);
     });
     return () => unsubscribe();
@@ -71,8 +90,14 @@ const Community: React.FC = () => {
     e.preventDefault();
     if (!user || !newPost.title || !newPost.content) return;
 
+    const isGuest = user.uid.startsWith("guest-");
+
     try {
-      await addDoc(collection(db, "posts"), {
+      if (isGuest) {
+        throw new Error("Guest Mode: Write local post");
+      }
+
+      const docRef = await addDoc(collection(db, "posts"), {
         authorId: user.uid,
         authorName: profile?.displayName || user.displayName || "Hacker",
         title: newPost.title,
@@ -85,10 +110,81 @@ const Community: React.FC = () => {
         commentsCount: 0,
         createdAt: serverTimestamp(),
       });
+
+      const titleTemp = newPost.title;
+      const contentTemp = newPost.content;
+
       setNewPost({ title: "", content: "", tags: "" });
       setShowEditor(false);
+
+      // Trigger automatic AI comment after a short delay
+      setTimeout(async () => {
+        try {
+          const replyText = await generateCommunityReply("post", titleTemp, contentTemp);
+          await addDoc(collection(db, "posts", docRef.id, "comments"), {
+            authorId: "antigravity-ai",
+            authorName: "Antigravity (Google DeepMind)",
+            content: replyText,
+            createdAt: serverTimestamp(),
+          });
+          await updateDoc(doc(db, "posts", docRef.id), {
+            commentsCount: increment(1),
+          });
+        } catch (err) {
+          console.error("Failed to post AI welcome reply:", err);
+        }
+      }, 1500);
     } catch (error) {
-      console.error("Error adding post:", error);
+      console.log("Saving post locally due to guest mode or offline error:", error);
+
+      const localPostId = `local-post-${Date.now()}`;
+      const localPost = {
+        id: localPostId,
+        authorId: user.uid,
+        authorName: profile?.displayName || user.displayName || "Hacker",
+        title: newPost.title,
+        content: newPost.content,
+        tags: newPost.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+        likesCount: 0,
+        commentsCount: 0,
+        createdAt: new Date().toISOString(),
+      };
+
+      const existingLocal = JSON.parse(localStorage.getItem("gabdev_local_posts") || "[]");
+      localStorage.setItem("gabdev_local_posts", JSON.stringify([localPost, ...existingLocal]));
+
+      // Update state locally
+      setPosts(prev => [localPost as any, ...prev]);
+
+      const titleTemp = newPost.title;
+      const contentTemp = newPost.content;
+
+      setNewPost({ title: "", content: "", tags: "" });
+      setShowEditor(false);
+
+      // Trigger AI reply locally
+      setTimeout(async () => {
+        try {
+          const replyText = await generateCommunityReply("post", titleTemp, contentTemp);
+          const localComment = {
+            id: `local-comment-${Date.now()}`,
+            authorId: "antigravity-ai",
+            authorName: "Antigravity (Google DeepMind)",
+            content: replyText,
+            createdAt: new Date().toISOString(),
+          };
+
+          const localCommentsKey = `gabdev_local_comments_${localPostId}`;
+          localStorage.setItem(localCommentsKey, JSON.stringify([localComment]));
+
+          setPosts(prev => prev.map(p => p.id === localPostId ? { ...p, commentsCount: 1 } : p));
+        } catch (err) {
+          console.error("Failed to post local AI reply:", err);
+        }
+      }, 1500);
     }
   };
 
@@ -97,6 +193,147 @@ const Community: React.FC = () => {
     await updateDoc(doc(db, "posts", id), {
       likesCount: increment(1),
     });
+  };
+
+  // Charger les commentaires d'une discussion lorsqu'elle est ouverte
+  useEffect(() => {
+    if (!expandedPostId) return;
+
+    setLoadingComments((prev) => ({ ...prev, [expandedPostId]: true }));
+
+    const isLocalPost = expandedPostId.startsWith("local-");
+
+    if (isLocalPost) {
+      const localCommentsKey = `gabdev_local_comments_${expandedPostId}`;
+      const localComments = JSON.parse(localStorage.getItem(localCommentsKey) || "[]");
+      setComments((prev) => ({ ...prev, [expandedPostId]: localComments }));
+      setLoadingComments((prev) => ({ ...prev, [expandedPostId]: false }));
+      return;
+    }
+
+    const q = query(
+      collection(db, "posts", expandedPostId, "comments"),
+      orderBy("createdAt", "asc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list = snapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() }) as Comment
+      );
+
+      // Charger également les commentaires locaux pour ce post Firestore
+      const localCommentsKey = `gabdev_local_comments_${expandedPostId}`;
+      const localComments = JSON.parse(localStorage.getItem(localCommentsKey) || "[]");
+
+      setComments((prev) => ({ ...prev, [expandedPostId]: [...list, ...localComments] }));
+      setLoadingComments((prev) => ({ ...prev, [expandedPostId]: false }));
+    });
+
+    return () => unsubscribe();
+  }, [expandedPostId]);
+
+  const handleAddComment = async (postId: string) => {
+    const text = commentInputs[postId]?.trim();
+    if (!user || !text) return;
+
+    const isLocal = user.uid.startsWith("guest-") || postId.startsWith("local-");
+
+    try {
+      if (isLocal) {
+        throw new Error("Guest Mode: Write local comment");
+      }
+
+      await addDoc(collection(db, "posts", postId, "comments"), {
+        authorId: user.uid,
+        authorName: profile?.displayName || user.displayName || "Hacker",
+        content: text,
+        createdAt: serverTimestamp(),
+      });
+
+      await updateDoc(doc(db, "posts", postId), {
+        commentsCount: increment(1),
+      });
+
+      setCommentInputs((prev) => ({ ...prev, [postId]: "" }));
+
+      // Si l'utilisateur mentionne antigravity, déclencher une réponse IA
+      if (text.toLowerCase().includes("antigravity")) {
+        triggerAIResponseToComment(postId, text);
+      }
+    } catch (err) {
+      console.log("Saving comment locally...", err);
+
+      const localComment = {
+        id: `local-comment-${Date.now()}`,
+        authorId: user.uid,
+        authorName: profile?.displayName || user.displayName || "Hacker",
+        content: text,
+        createdAt: new Date().toISOString(),
+      };
+
+      const localCommentsKey = `gabdev_local_comments_${postId}`;
+      const existingComments = JSON.parse(localStorage.getItem(localCommentsKey) || "[]");
+      const updatedComments = [...existingComments, localComment];
+      localStorage.setItem(localCommentsKey, JSON.stringify(updatedComments));
+
+      // Mettre à jour l'état immédiatement
+      setComments(prev => ({
+        ...prev,
+        [postId]: [...(prev[postId] || []), localComment as any]
+      }));
+
+      // Incrémenter le compteur de commentaires localement
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, commentsCount: p.commentsCount + 1 } : p));
+      setCommentInputs((prev) => ({ ...prev, [postId]: "" }));
+
+      // Déclencher une réponse IA locale si mentionné ou si c'est un post local
+      if (text.toLowerCase().includes("antigravity") || postId.startsWith("local-")) {
+        setTimeout(async () => {
+          try {
+            const replyText = await generateCommunityReply("comment", text);
+            const localAIComment = {
+              id: `local-comment-${Date.now()}`,
+              authorId: "antigravity-ai",
+              authorName: "Antigravity (Google DeepMind)",
+              content: replyText,
+              createdAt: new Date().toISOString(),
+            };
+
+            const localCommentsWithAI = [...updatedComments, localAIComment];
+            localStorage.setItem(localCommentsKey, JSON.stringify(localCommentsWithAI));
+
+            setComments(prev => ({
+              ...prev,
+              [postId]: [...(prev[postId] || []), localAIComment as any]
+            }));
+
+            setPosts(prev => prev.map(p => p.id === postId ? { ...p, commentsCount: p.commentsCount + 1 } : p));
+          } catch (err) {
+            console.error("Failed to post local AI reply:", err);
+          }
+        }, 1500);
+      }
+    }
+  };
+
+  const triggerAIResponseToComment = async (postId: string, userComment: string) => {
+    // Petit délai pour simuler la réflexion de l'IA
+    setTimeout(async () => {
+      try {
+        const replyText = await generateCommunityReply("comment", userComment);
+        await addDoc(collection(db, "posts", postId, "comments"), {
+          authorId: "antigravity-ai",
+          authorName: "Antigravity (Google DeepMind)",
+          content: replyText,
+          createdAt: serverTimestamp(),
+        });
+        await updateDoc(doc(db, "posts", postId), {
+          commentsCount: increment(1),
+        });
+      } catch (err) {
+        console.error("Failed to post AI reply to comment:", err);
+      }
+    }, 1500);
   };
 
   const filteredPosts = posts.filter(
@@ -136,10 +373,29 @@ const Community: React.FC = () => {
       {showEditor && (
         <div className="mb-12 bg-zinc-900/50 border border-green-500/30 rounded-3xl p-8 animate-in slide-in-from-top duration-300">
           {!user ? (
-            <div className="text-center py-8">
-              <p className="text-zinc-400 font-bold mb-4 uppercase tracking-widest text-xs">
+            <div className="text-center py-8 space-y-4">
+              <p className="text-zinc-400 font-bold uppercase tracking-widest text-xs">
                 Connectez-vous pour participer aux débats
               </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const name = prompt("Entrez votre pseudo pour vous connecter :");
+                    if (name !== null) await signInQuick(name);
+                  }}
+                  className="bg-[#22c55e] hover:bg-[#16a34a] text-black px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-green-500/10 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <User className="w-4 h-4" /> Connexion Rapide (1-clic)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => signInWithGoogle()}
+                  className="bg-zinc-850 hover:bg-zinc-800 border border-white/5 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <User className="w-4 h-4" /> Se connecter avec Google
+                </button>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -255,8 +511,11 @@ const Community: React.FC = () => {
                   <span className="text-xs font-black">{post.likesCount}</span>
                 </button>
 
-                <button className="flex items-center gap-2.5 text-zinc-500 hover:text-blue-500 transition-all group/btn">
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover/btn:bg-blue-500/10 transition-colors">
+                <button
+                  onClick={() => setExpandedPostId(expandedPostId === post.id ? null : post.id)}
+                  className={`flex items-center gap-2.5 transition-all group/btn ${expandedPostId === post.id ? "text-blue-500" : "text-zinc-500 hover:text-blue-500"}`}
+                >
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${expandedPostId === post.id ? "bg-blue-500/10" : "bg-white/5 group-hover/btn:bg-blue-500/10"}`}>
                     <MessageSquare className="w-4 h-4" />
                   </div>
                   <span className="text-xs font-black">
@@ -264,6 +523,98 @@ const Community: React.FC = () => {
                   </span>
                 </button>
               </div>
+
+              {expandedPostId === post.id && (
+                <div className="mt-8 pt-8 border-t border-white/5 space-y-6 animate-in fade-in duration-200">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4">
+                    Commentaires ({post.commentsCount})
+                  </h4>
+
+                  {/* Liste des commentaires */}
+                  <div className="space-y-4">
+                    {loadingComments[post.id] ? (
+                      <p className="text-xs text-zinc-600 font-bold uppercase tracking-wider">Chargement des réponses...</p>
+                    ) : !comments[post.id] || comments[post.id].length === 0 ? (
+                      <p className="text-xs text-zinc-600 font-bold uppercase tracking-wider">Aucun commentaire. Soyez le premier à répondre !</p>
+                    ) : (
+                      comments[post.id].map((comment) => {
+                        const isAI = comment.authorId === "antigravity-ai";
+                        return (
+                          <div 
+                            key={comment.id} 
+                            className={`p-4 rounded-2xl border text-left relative overflow-hidden ${
+                              isAI 
+                                ? "bg-blue-950/20 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.05)]" 
+                                : "bg-black/20 border-white/5"
+                            }`}
+                          >
+                            <div className="flex justify-between items-start gap-4 mb-2">
+                              <span className={`text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 ${isAI ? "text-blue-400 font-black" : "text-zinc-400"}`}>
+                                {isAI ? "🪐 " : ""}{comment.authorName}
+                                {isAI && (
+                                  <span className="text-[8px] font-black bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded text-blue-400 uppercase">Agent IA</span>
+                                )}
+                              </span>
+                              <span className="text-[9px] text-zinc-600 font-medium">
+                                {comment.createdAt?.toDate ? comment.createdAt.toDate().toLocaleTimeString() : "À l'instant"}
+                              </span>
+                            </div>
+                            <p className="text-zinc-300 text-xs leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* Formulaire d'ajout de commentaire */}
+                  {user ? (
+                    <div className="flex gap-3 pt-4 border-t border-white/5">
+                      <input
+                        type="text"
+                        placeholder="Votre réponse (mentionnez @antigravity pour m'appeler)..."
+                        value={commentInputs[post.id] || ""}
+                        onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleAddComment(post.id);
+                          }
+                        }}
+                        className="flex-grow bg-black/40 border border-white/5 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all font-medium"
+                      />
+                      <button
+                        onClick={() => handleAddComment(post.id)}
+                        disabled={!(commentInputs[post.id]?.trim())}
+                        className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-40 text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shrink-0 active:scale-95 shadow-md shadow-blue-500/5 cursor-pointer"
+                      >
+                        Répondre
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 space-y-3">
+                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-wider">Connectez-vous pour commenter</p>
+                      <div className="flex gap-2 justify-center">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const name = prompt("Entrez votre pseudo pour commenter :");
+                            if (name !== null) await signInQuick(name);
+                          }}
+                          className="bg-[#22c55e] hover:bg-[#16a34a] text-black px-4 py-2 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all active:scale-95 cursor-pointer flex items-center gap-1"
+                        >
+                          <User className="w-3 h-3" /> Connexion Rapide
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => signInWithGoogle()}
+                          className="bg-zinc-800 hover:bg-zinc-700 border border-white/5 text-white px-4 py-2 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all active:scale-95 cursor-pointer flex items-center gap-1"
+                        >
+                          <User className="w-3 h-3" /> Google
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))
         )}

@@ -20,7 +20,7 @@ const Hero: React.FC<HeroProps> = (props: HeroProps) => {
         </span>
       </div>
 
-      <h1 className="text-6xl md:text-9xl font-black mb-8 leading-[0.9] tracking-tighter">
+      <h1 className="text-4xl sm:text-7xl md:text-9xl font-black mb-8 leading-[0.9] tracking-tighter">
         Batir le <span className="gradient-title">Gabon digital</span>
       </h1>
 
