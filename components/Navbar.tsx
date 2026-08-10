@@ -254,7 +254,7 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2">
             <button
               onClick={async () => {
                 const name = prompt("Entrez votre pseudo pour vous connecter instantanément (ou laissez vide pour un pseudo aléatoire) :");
@@ -298,7 +298,7 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="absolute top-full left-0 lg:hidden w-full bg-zinc-950/98 backdrop-blur-xl border-b border-white/5 overflow-hidden z-30"
+            className="absolute top-full left-0 lg:hidden w-full bg-zinc-950 border-b border-white/5 overflow-hidden z-30"
           >
             <div className="px-6 py-6 flex flex-col gap-6">
               {/* Search bar inside mobile menu */}
