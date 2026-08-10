@@ -115,7 +115,7 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
           </svg>
         </div>
         <span className="text-xl font-black tracking-tight">
-          Dev<span className="text-[#22c55e]">GAB</span>
+          GAB<span className="text-[#22c55e]">Dev</span>
         </span>
       </div>
 
