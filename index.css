@@ -45,13 +45,13 @@ body {
 }
 
 .light-theme {
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #f4f4f6;
+  color: #27272a;
 }
 
 .light-theme body {
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #f4f4f6;
+  color: #27272a;
 }
 
 .light-theme .bg-black,
@@ -78,92 +78,92 @@ body {
 .light-theme .bg-zinc-800\/50,
 .light-theme .bg-zinc-800\/40,
 .light-theme .bg-zinc-800\/30 {
-  background-color: #f1f5f9;
+  background-color: #e4e4e7;
 }
 
 .light-theme .bg-zinc-700,
 .light-theme .bg-zinc-700\/50 {
-  background-color: #e2e8f0;
+  background-color: #d4d4d8;
 }
 
 .light-theme .bg-zinc-600,
 .light-theme .bg-zinc-600\/50 {
-  background-color: #cbd5e1;
+  background-color: #a1a1aa;
 }
 
 .light-theme .bg-zinc-500,
 .light-theme .bg-zinc-500\/50 {
-  background-color: #e2e8f0;
+  background-color: #d4d4d8;
 }
 
 .light-theme .text-zinc-100 {
-  color: #0f172a;
+  color: #18181b;
 }
 
 .light-theme .text-zinc-200 {
-  color: #0f172a;
+  color: #18181b;
 }
 
 .light-theme .text-zinc-300 {
-  color: #334155;
+  color: #3f3f46;
 }
 
 .light-theme .text-zinc-400 {
-  color: #64748b;
+  color: #71717a;
 }
 
 .light-theme .text-zinc-500 {
-  color: #475569;
+  color: #52525b;
 }
 
 .light-theme .text-zinc-600 {
-  color: #334155;
+  color: #3f3f46;
 }
 
 .light-theme .text-zinc-700 {
-  color: #1e293b;
+  color: #27272a;
 }
 
 .light-theme .text-zinc-800 {
-  color: #0f172a;
+  color: #18181b;
 }
 
 .light-theme .text-zinc-900 {
-  color: #0f172a;
+  color: #18181b;
 }
 
 .light-theme .border-white\/5,
 .light-theme .border-white\/10 {
-  border-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.06);
 }
 
 .light-theme .border-white\/20,
 .light-theme .border-white\/30 {
-  border-color: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 .light-theme .custom-blur {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.85);
 }
 
 .light-theme .bg-white\/5 {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .light-theme .bg-white\/10 {
-  background-color: rgba(0, 0, 0, 0.08);
+  background-color: rgba(0, 0, 0, 0.06);
 }
 
 .light-theme .bg-white\/20 {
-  background-color: rgba(0, 0, 0, 0.12);
+  background-color: rgba(0, 0, 0, 0.08);
 }
 
 .light-theme .text-white {
-  color: #0f172a;
+  color: #18181b;
 }
 
 .light-theme .shadow-black\/20 {
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 12px 24px rgba(9, 9, 11, 0.04);
 }
 
 /* --- CUSTOM GABDEV LOADER STYLES --- */
