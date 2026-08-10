@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { db } from "../services/firebase";
+import Loader from "./Loader";
 import {
   collection,
   onSnapshot,
@@ -124,10 +125,8 @@ const Resources: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
-            <div className="col-span-full py-20 text-center">
-              <div className="text-zinc-700 text-lg font-bold mb-4">
-                Chargement des ressources...
-              </div>
+            <div className="col-span-full">
+              <Loader text="Chargement des ressources..." />
             </div>
           ) : filteredResources.length > 0 ? (
             filteredResources.map((resource) => (

@@ -4,16 +4,12 @@ import { signInWithGoogle, signInQuick, logout } from "../services/firebase";
 import {
   User,
   LogOut,
-  LayoutDashboard,
-  MessageSquare,
   Rocket,
-  Newspaper,
   BarChart3,
   Moon,
   Sun,
   Search,
   Bell,
-  GraduationCap,
   Lock,
   Briefcase,
   Menu,
@@ -71,10 +67,6 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
   const navItems: NavItem[] = [
     { label: "ACCUEIL", view: "home" as View, icon: Rocket },
     { label: "SERVICES", view: "services" as View, icon: Briefcase },
-    { label: "COMMUNAUTÉ", view: "community" as View, icon: MessageSquare },
-    { label: "FORMATIONS", view: "training" as View, icon: GraduationCap, highlight: true },
-    { label: "SHOWCASE", view: "showcase" as View, icon: LayoutDashboard },
-    { label: "BLOG", view: "blog" as View, icon: Newspaper },
   ];
 
   const isMember = profile?.groups?.includes("gabdev-global") ?? false;
@@ -310,14 +302,18 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
           >
             <div className="px-6 py-6 flex flex-col gap-6">
               {/* Search bar inside mobile menu */}
-              <div className="flex items-center relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-[#22c55e] transition-colors" />
-                <input
-                  type="text"
-                  placeholder="Rechercher..."
-                  className="w-full bg-zinc-900 border border-white/5 rounded-2xl pl-12 pr-4 py-3 text-xs text-zinc-300 focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all font-medium"
-                />
-              </div>
+              {openSearch && (
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    openSearch();
+                  }}
+                  className="flex items-center relative w-full bg-zinc-900 border border-white/5 rounded-2xl pl-12 pr-4 py-3.5 text-xs text-zinc-500 hover:text-zinc-300 transition-all font-medium text-left cursor-pointer"
+                >
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                  <span>Rechercher... (Ctrl + K)</span>
+                </button>
+              )}
 
               {/* Navigation Items */}
               <ul className="flex flex-col gap-4">

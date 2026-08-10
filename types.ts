@@ -74,18 +74,3 @@ export interface Reminder {
   notified: boolean;
 }
 
-export interface Lesson {
-  title: string;
-  content: string;
-  practicalExercise?: string;
-}
-
-export interface TrainingModule {
-  id: string;
-  order: number;
-  title: string;
-  description: string;
-  category: string;
-  lessons: Lesson[];
-  duration: string;
-}

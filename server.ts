@@ -129,13 +129,11 @@ async function startServer() {
    *         description: Demande reçue avec succès
    */
   app.post('/api/services/inquiry', (req, res) => {
-    const { name, email, whatsapp, service, description, budget } = req.body;
+    const { name, contact, service, description } = req.body;
     console.log('=== NOUVELLE DEMANDE DE SERVICE RECEVUE ===');
     console.log(`Client : ${name}`);
-    console.log(`Email : ${email}`);
-    console.log(`WhatsApp : ${whatsapp}`);
+    console.log(`Contact : ${contact}`);
     console.log(`Service demandé : ${service}`);
-    console.log(`Budget estimé : ${budget}`);
     console.log(`Description : ${description}`);
     console.log('==========================================');
     res.status(201).json({ 

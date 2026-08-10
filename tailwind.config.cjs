@@ -10,7 +10,11 @@ module.exports = {
     './types.ts',
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['Manrope', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 };

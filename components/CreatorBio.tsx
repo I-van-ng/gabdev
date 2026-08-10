@@ -9,25 +9,15 @@ const CreatorBio: React.FC<CreatorBioProps> = ({ onContactClick }) => {
     "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2000&auto=format&fit=crop";
 
   return (
-    <section className="py-24 px-6 bg-black relative overflow-hidden" id="ivan-bio">
-      <div
-        className="absolute inset-0 z-0 opacity-10 grayscale-[0.8]"
-        style={{
-          backgroundImage: `url(${landscapeBg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
-
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16 relative z-10">
+    <section className="py-16 sm:py-24 px-6 bg-black relative overflow-hidden" id="ivan-bio">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-10 md:gap-16 relative z-10">
         <div className="w-full md:w-5/12 flex justify-center">
           <div className="relative group w-full max-w-sm">
-            <div className="absolute -inset-1.5 bg-gradient-to-tr from-[#22c55e] via-[#fbbf24] to-[#60a5fa] rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
 
-            <div className="relative bg-zinc-900 rounded-[2.5rem] overflow-hidden border border-white/10 aspect-[4/5] shadow-2xl flex flex-col items-center justify-center p-12">
-              <div className="w-32 h-32 bg-[#22c55e] rounded-[2rem] flex items-center justify-center shadow-[0_0_50px_rgba(34,197,94,0.3)] transform transition-transform duration-500">
+            <div className="relative bg-zinc-900 rounded-3xl md:rounded-[2.5rem] overflow-hidden border border-white/10 aspect-auto py-10 px-6 md:p-12 md:aspect-[4/5] shadow-2xl flex flex-col items-center justify-center min-h-[300px] md:min-h-0">
+              <div className="w-24 h-24 md:w-32 md:h-32 bg-[#22c55e] rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center shadow-[0_0_40px_rgba(34,197,94,0.25)] transform transition-transform duration-500">
                 <svg
-                  className="w-20 h-20 text-black"
+                  className="w-14 h-14 md:w-20 md:h-20 text-black"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -41,17 +31,17 @@ const CreatorBio: React.FC<CreatorBioProps> = ({ onContactClick }) => {
                 </svg>
               </div>
 
-              <div className="mt-10 text-center">
-                <span className="text-4xl font-black tracking-tighter text-white">
+              <div className="mt-8 md:mt-10 text-center">
+                <span className="text-3xl md:text-4xl font-black tracking-tighter text-white">
                   GAB<span className="text-[#22c55e]">dev</span>
                 </span>
               </div>
 
-              <div className="absolute bottom-8 left-8">
-                <p className="text-white font-black text-2xl tracking-tight">
+              <div className="relative md:absolute mt-8 md:mt-0 md:bottom-8 md:left-8 w-full text-center md:text-left">
+                <p className="text-white font-black text-xl md:text-2xl tracking-tight">
                   Ivan Ndoumba Nguia
                 </p>
-                <p className="text-[#22c55e] text-xs font-bold tracking-[0.2em] uppercase mt-1">
+                <p className="text-[#22c55e] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase mt-1">
                   Fondateur
                 </p>
               </div>
@@ -60,33 +50,29 @@ const CreatorBio: React.FC<CreatorBioProps> = ({ onContactClick }) => {
         </div>
 
         <div className="w-full md:w-7/12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6 md:mb-8 backdrop-blur-md">
             <span className="w-2 h-2 bg-[#22c55e] rounded-full animate-pulse" />
             <span className="text-[10px] font-black tracking-[0.2em] text-zinc-400 uppercase">
-              Vision du fondateur
+              Le mot d'Ivan
             </span>
           </div>
 
-          <h2 className="text-4xl md:text-5xl font-black mb-8 leading-[1.1] tracking-tighter text-white">
-            Une vision pour le <br />
-            <span className="text-[#22c55e]">Gabon digital.</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 md:mb-8 leading-[1.1] tracking-tighter text-white">
+            Pourquoi GABdev ?
           </h2>
 
-          <blockquote className="space-y-6 text-zinc-300 text-lg leading-relaxed font-medium italic mb-10 border-l-4 border-[#22c55e]/30 pl-6">
+          <blockquote className="space-y-6 text-zinc-300 text-base sm:text-lg leading-relaxed font-medium italic mb-8 md:mb-10 border-l-4 border-[#22c55e]/30 pl-4 sm:pl-6">
             <p>
-              Gabdev est une communaute gabonaise d'innovation numerique dont la
-              vision est de batir un ecosysteme technologique fort, souverain et
-              creatif, capable de resoudre les defis du pays grace a
-              l'intelligence collective.
+              J'ai fondé GABdev pour accompagner les entreprises et porteurs de projets dans leur transformation numérique au Gabon. Grâce à notre expertise technique et notre réactivité, nous concevons des solutions sur-mesure pour vous aider à concrétiser vos ambitions et à performer au quotidien.
             </p>
           </blockquote>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-3 sm:gap-4">
             <a
               href="https://www.linkedin.com/in/ivan-ndoumba-nguia-a025053a4"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-6 py-4 bg-zinc-900 border border-white/10 rounded-2xl text-xs font-bold hover:bg-zinc-800 transition-all text-white"
+              className="flex items-center gap-3 px-5 py-3.5 sm:px-6 sm:py-4 bg-zinc-900 border border-white/10 rounded-xl sm:rounded-2xl text-xs font-bold hover:bg-zinc-800 transition-all text-white"
             >
               <svg
                 className="w-5 h-5 text-[#0077b5]"
@@ -99,7 +85,7 @@ const CreatorBio: React.FC<CreatorBioProps> = ({ onContactClick }) => {
             </a>
             <button
               onClick={onContactClick}
-              className="flex items-center gap-3 px-6 py-4 bg-zinc-900/50 border border-white/5 rounded-2xl text-xs font-bold text-zinc-400 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
+              className="flex items-center gap-3 px-5 py-3.5 sm:px-6 sm:py-4 bg-zinc-900/50 border border-white/5 rounded-xl sm:rounded-2xl text-xs font-bold text-zinc-400 hover:bg-zinc-800 hover:text-white transition-all cursor-pointer"
             >
               <svg
                 className="w-5 h-5 text-[#22c55e]"

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  Search, Rocket, Briefcase, MessageSquare, GraduationCap, 
-  LayoutDashboard, Newspaper, User, Terminal, X 
+  Search, Rocket, Briefcase, 
+  User, Terminal, X 
 } from "lucide-react";
 import { View } from "../App";
 
@@ -63,34 +63,6 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, setVie
       category: "Navigation",
       icon: <Briefcase className="w-4 h-4 text-blue-500" />,
       action: () => { setView("services"); onClose(); }
-    },
-    {
-      id: "training",
-      label: "Accéder à l'Académie (Formations)",
-      category: "Navigation",
-      icon: <GraduationCap className="w-4 h-4 text-amber-500" />,
-      action: () => { setView("training"); onClose(); }
-    },
-    {
-      id: "community",
-      label: "Ouvrir le Forum Communautaire",
-      category: "Navigation",
-      icon: <MessageSquare className="w-4 h-4 text-blue-400" />,
-      action: () => { setView("community"); onClose(); }
-    },
-    {
-      id: "showcase",
-      label: "Découvrir la Vitrine de Projets (Showcase)",
-      category: "Navigation",
-      icon: <LayoutDashboard className="w-4 h-4 text-orange-500" />,
-      action: () => { setView("showcase"); onClose(); }
-    },
-    {
-      id: "blog",
-      label: "Lire le GABdev Journal (Blog)",
-      category: "Navigation",
-      icon: <Newspaper className="w-4 h-4 text-purple-500" />,
-      action: () => { setView("blog"); onClose(); }
     },
     {
       id: "profile",

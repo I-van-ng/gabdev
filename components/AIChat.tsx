@@ -36,21 +36,6 @@ const viewSuggestions: Record<string, string[]> = {
     "Demander un devis pour un projet",
     "Quels langages utilisez-vous ?",
   ],
-  community: [
-    "Comment fonctionne le forum ?",
-    "Comment puis-je contribuer ?",
-    "Quels sont les sujets chauds ?",
-  ],
-  showcase: [
-    "Quels projets sont en vedette ?",
-    "Qui a développé Pizolub ?",
-    "Comment soumettre un projet ?",
-  ],
-  blog: [
-    "Quels articles puis-je lire ?",
-    "Comment proposer un article ?",
-    "Dernières actualités tech au Gabon",
-  ],
   profile: [
     "Comment modifier mon profil ?",
     "À quoi servent les badges ?",
@@ -321,7 +306,7 @@ const AIChat: React.FC<AIChatProps> = (props: AIChatProps) => {
             );
 
             if (results.length === 0) {
-              const notFoundText = `Je n'ai pas trouvé de ressources spécifiques pour "${searchQuery}". Vous pouvez consulter notre Blog ou explorer le Showcase.`;
+              const notFoundText = `Je n'ai pas trouvé de ressources spécifiques pour "${searchQuery}". N'hésitez pas à reformuler votre recherche ou à me poser une autre question !`;
               setMessages((prev) => [
                 ...prev,
                 { role: "model", text: notFoundText },
