@@ -27,7 +27,7 @@ const NotificationBell: React.FC = () => {
             className="fixed inset-0 z-40" 
             onClick={() => setIsOpen(false)} 
           />
-          <div className="absolute right-0 mt-4 w-80 md:w-96 bg-zinc-900 border border-white/10 rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="fixed md:absolute left-4 right-4 md:left-auto md:right-0 top-20 md:top-auto md:mt-4 md:w-96 bg-zinc-900 border border-white/10 rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="p-5 border-b border-white/5 flex items-center justify-between bg-zinc-800/20">
               <h3 className="font-black text-xs uppercase tracking-widest text-white">Notifications</h3>
               {unreadCount > 0 && (
