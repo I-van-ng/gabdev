@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Search, Rocket, Briefcase, 
   User, Terminal, X,
-  BookOpen, FolderGit2, MessagesSquare, MessageSquare, BarChart3
+  BookOpen, FolderGit2, MessagesSquare, MessageSquare, BarChart3, GraduationCap
 } from "lucide-react";
 import { View } from "../App";
 
@@ -60,9 +60,9 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, setVie
     },
     {
       id: "resources",
-      label: "Ressources & Tutoriels Tech (Airtel, Moov, Regex)",
+      label: "Espace Formations & Tutoriels",
       category: "Navigation",
-      icon: <BookOpen className="w-4 h-4 text-blue-500" />,
+      icon: <GraduationCap className="w-4 h-4 text-blue-500" />,
       action: () => { setView("resources"); onClose(); }
     },
     {

@@ -16,6 +16,7 @@ import {
   X,
   MessageSquare,
   BookOpen,
+  GraduationCap,
   FolderGit2,
   MessagesSquare,
 } from "lucide-react";
@@ -70,7 +71,7 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
 
   const navItems: NavItem[] = [
     { label: "ACCUEIL", view: "home" as View, icon: Rocket },
-    { label: "RESSOURCES", view: "resources" as View, icon: BookOpen },
+    { label: "FORMATIONS", view: "resources" as View, icon: GraduationCap },
     { label: "PROJETS", view: "projects" as View, icon: FolderGit2 },
     { label: "FORUM", view: "forum" as View, icon: MessagesSquare },
     { label: "CHAT", view: "messages" as View, icon: MessageSquare },
