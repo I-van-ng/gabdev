@@ -16,6 +16,13 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+
     function isValidId(id) {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
@@ -23,7 +30,7 @@ service cloud.firestore {
     // USER RULES
     match /users/{userId} {
       allow get: if isSignedIn();
-      allow list: if isSignedIn(); // We might want to list users
+      allow list: if isAdmin(); // Restrict listing all users to admin
       allow create: if isOwner(userId) && 
         request.resource.data.keys().hasAll(['uid', 'email', 'displayName', 'joinedAt']) &&
         request.resource.data.uid == userId;
@@ -61,13 +68,13 @@ service cloud.firestore {
     // ARTICLE RULES
     match /articles/{articleId} {
       allow read: if true;
-      allow write: if isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      allow write: if isAdmin();
     }
 
     // RESOURCE RULES
     match /resources/{resourceId} {
       allow read: if true;
-      allow write: if isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      allow write: if isAdmin();
     }
 
     // NOTIFICATION RULES
@@ -91,10 +98,16 @@ service cloud.firestore {
       }
     }
 
+    // COMMUNITY MESSAGES RULES
+    match /community_messages/{messageId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.senderId == request.auth.uid;
+    }
+
     // NEWSLETTER RULES
     match /newsletter/{email} {
       allow create: if true; // Open to all
-      allow read: if isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      allow read: if isAdmin();
     }
   }
 }

@@ -1,217 +1,93 @@
-import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
-
-const ENABLE_PHP_SUPPORT = true;
-
-const SYSTEM_INSTRUCTION = `
-Identité :
-- Nom : MBOLO-IA (M'bolo signifiant 'Bonjour' en langue gabonaise pour symboliser l'accueil et l'ouverture).
-- Statut : Intelligence Artificielle avancée native de GABdev.
-- Mission : Accompagner les développeurs, entrepreneurs et industries africaines dans la transformation digitale.
-- Valeurs : Clarté, pédagogie, efficacité, respect, innovation locale.
-- Style : Professionnel, direct, structuré, sans blabla inutile.
-
-Philosophie :
-- IA centrée sur l’humain (approche anthropique).
-- Sécurité, transparence, responsabilité.
-- Priorité au contexte gabonais et aux réalités locales (faible latence, mobile-first, paiements locaux).
-
-Capacités :
-- Explications techniques simples et accessibles.
-- Création de contenus pédagogiques structurés.
-- Analyse de documents, images et tableaux.
-- Aide au développement (Flutter, API, IoT, ${ENABLE_PHP_SUPPORT ? "PHP, Laravel, " : ""}Cloud).
-- Aide aux PME (optimisation de processus, automatisation, communication).
-- Raisonnement étape par étape pour la résolution de problèmes.
-- Propositions concrètes, applicables et chiffrées si nécessaire.
-
-Règles :
-- Toujours donner des réponses claires, utiles et actionnables.
-- Refuser fermement les demandes dangereuses ou illégales.
-- Ne jamais inventer des faits ou des données (zéro hallucination).
-- Toujours proposer une alternative constructive si une demande est impossible.
-
-Informations Hub & Contact :
-- Fondateur : Ivan Ndoumba Nguia.
-- LinkedIn du fondateur : https://www.linkedin.com/in/ivan-ndoumba-nguia-a025053a4
-- WhatsApp GABdev : https://whatsapp.com/channel/0029VbCflU7J3jv8ZTorRW13
-- Contact direct : ivanndoumbanguia@gmail.com
-
-Outils & Fonctions :
-- 'set_reminder' : Pour créer des rappels de tâches.
-- 'list_reminders' : Pour consulter l'agenda des tâches.
-- 'search_resources' : Pour recommander des articles, tutoriels ou projets du Hub.
-`;
-
-const setReminderDeclaration: FunctionDeclaration = {
-  name: "set_reminder",
-  description:
-    "Définit un rappel pour une tâche spécifique à une heure donnée.",
-  parameters: {
-    type: Type.OBJECT,
-    properties: {
-      task: {
-        type: Type.STRING,
-        description: "La description du rappel ou de la tâche.",
-      },
-      dueTime: {
-        type: Type.STRING,
-        description:
-          "L'heure d'échéance du rappel (format ISO 8601 ou délai en minutes/heures si relatif).",
-      },
-    },
-    required: ["task", "dueTime"],
-  },
-};
-
-const listRemindersDeclaration: FunctionDeclaration = {
-  name: "list_reminders",
-  description: "Liste tous les rappels actifs de l'utilisateur.",
-  parameters: {
-    type: Type.OBJECT,
-    properties: {},
-  },
-};
-
-const searchResourcesDeclaration: FunctionDeclaration = {
-  name: "search_resources",
-  description:
-    "Recherche des ressources (tutoriels, outils, snippets) sur la plateforme GABdev.",
-  parameters: {
-    type: Type.OBJECT,
-    properties: {
-      query: {
-        type: Type.STRING,
-        description:
-          "Le mot-clé ou la catégorie à rechercher (ex: 'Airtel Money', 'Figma', 'Regex').",
-      },
-    },
-    required: ["query"],
-  },
-};
-
+/**
+ * Sends a message to the backend Gemini proxy API and returns an async generator for streaming the response.
+ */
 export const sendMessageToGemini = async (
   message: string,
   history: { role: "user" | "model"; text: string }[],
 ) => {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const response = await fetch('/api/ai/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, history }),
+  });
 
-  if (!apiKey) {
-    throw new Error("Clé API de l'assistant non configurée. Vérifiez .env.local");
+  if (!response.ok) {
+    throw new Error('Erreur de communication avec le serveur IA.');
   }
 
-  const ai = new GoogleGenAI({ apiKey });
+  const reader = response.body?.getReader();
+  const decoder = new TextDecoder('utf-8');
 
-  try {
-    const chatConfig = {
-      model: "gemini-3-flash-preview",
-      contents: [
-        ...history.map((msg) => ({
-          role: msg.role,
-          parts: [{ text: msg.text }],
-        })),
-        {
-          role: "user",
-          parts: [
-            {
-              text: `[CONTEXTE: Heure actuelle: ${new Date().toISOString()}] ${message}`,
-            },
-          ],
-        },
-      ],
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        tools: [
-          {
-            functionDeclarations: [
-              setReminderDeclaration,
-              listRemindersDeclaration,
-              searchResourcesDeclaration,
-            ],
-          },
-        ],
-      },
-    };
+  return {
+    async *[Symbol.asyncIterator]() {
+      let buffer = '';
+      while (reader) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-    return await ai.models.generateContentStream(chatConfig);
-  } catch (error) {
-    console.error("Assistant AI Error:", error);
-    throw error;
-  }
-};
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        // Keep the last partial line in the buffer
+        buffer = lines.pop() || '';
 
-export const generateLearningPath = async (topic: string) => {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("Clé API de l'assistant non configurée. Vérifiez .env.local");
-  }
+        for (const line of lines) {
+          const cleanLine = line.trim();
+          if (!cleanLine.startsWith('data: ')) continue;
+          const dataStr = cleanLine.substring(6);
+          if (dataStr === '[DONE]') return;
 
-  const ai = new GoogleGenAI({ apiKey });
-
-  try {
-    const prompt = `Génère un parcours d'apprentissage structuré au format JSON pour apprendre le sujet suivant : "${topic}".
-    Tu dois absolument renvoyer uniquement du JSON pur valide (sans balise markdown \`\`\`json et sans texte explicatif en dehors du JSON), contenant exactement cette structure :
-    {
-      "title": "Titre du parcours de formation",
-      "description": "Une description inspirante de ce que l'apprenant saura faire à la fin de ce parcours.",
-      "modules": [
-        {
-          "title": "Titre du module (ex: Étape 1 : Les bases)",
-          "concepts": ["Concept clé 1", "Concept clé 2", "Concept clé 3"],
-          "exercise": "Instructions très claires pour un exercice pratique à réaliser dans un éditeur de code HTML/CSS/JS.",
-          "starterCode": "Code HTML/CSS/JS initial (si nécessaire pour démarrer) ou laisser vide."
+          try {
+            const data = JSON.parse(dataStr);
+            yield data;
+          } catch (e) {
+            console.error('Error parsing SSE data:', e);
+          }
         }
-      ]
-    }`;
-
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: prompt,
-    });
-
-    const rawText = response.text || "";
-    const cleanText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-    return JSON.parse(cleanText);
-  } catch (error) {
-    console.error("Error generating learning path:", error);
-    throw error;
-  }
+      }
+    }
+  };
 };
 
+/**
+ * Sends a topic to the backend to generate a structured learning path.
+ */
+export const generateLearningPath = async (topic: string) => {
+  const response = await fetch('/api/ai/learning-path', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topic }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Erreur de génération de parcours d'apprentissage.");
+  }
+
+  return await response.json();
+};
+
+/**
+ * Sends thread information to the backend to generate a community reply.
+ */
 export const generateCommunityReply = async (
   contextType: "post" | "comment",
   titleOrUserComment: string,
   postContent?: string
 ): Promise<string> => {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("Clé API de l'assistant non configurée. Vérifiez .env.local");
-  }
-  const ai = new GoogleGenAI({ apiKey });
-  
-  let prompt = "";
-  if (contextType === "post") {
-    prompt = `Tu es Antigravity, l'agent IA d'élite de Google DeepMind.
-Un développeur de la communauté GABdev a publié un nouveau sujet de discussion :
-Titre : "${titleOrUserComment}"
-Description : "${postContent || ""}"
-
-Rédige une réponse technique, constructive, encourageante et brève en français (maximum 3-4 phrases). Essaie de donner un conseil technique pertinent par rapport au sujet et signe avec "🪐 Antigravity".`;
-  } else {
-    prompt = `Tu es Antigravity, l'agent IA d'élite de Google DeepMind.
-Un membre du forum GABdev t'a interpellé ou a posé une question en commentaire :
-Commentaire de l'utilisateur : "${titleOrUserComment}"
-
-Rédige une réponse chaleureuse, précise et courte en français (maximum 3-4 phrases) pour répondre à sa question ou rebondir sur son commentaire. Signe avec "🪐 Antigravity".`;
-  }
-
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: prompt,
+    const response = await fetch('/api/ai/community-reply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contextType, titleOrUserComment, postContent }),
     });
-    return response.text || "Je suis là pour vous aider ! 🪐 Antigravity";
+
+    if (!response.ok) {
+      return "Je suis là pour vous aider ! 🪐 Antigravity";
+    }
+
+    const data = await response.json();
+    return data.reply || "Je suis là pour vous aider ! 🪐 Antigravity";
   } catch (error) {
     console.error("Error generating community reply:", error);
-    return "Intéressant ! N'hésitez pas à me donner plus de détails. 🪐 Antigravity";
+    return "Je suis là pour vous aider ! 🪐 Antigravity";
   }
 };

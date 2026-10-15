@@ -1,0 +1,17 @@
+# Exclude Android Kotlin project from Vercel deployment uploads
+app/
+.gradle/
+.idea/
+gradle/
+build/
+local.properties
+*.log
+.vercel/
+node_modules/
+dist/
+.git/
+.kotlin/
+gabdev-dev.out.log
+gabdev-dev.err.log
+gabdev-2-dev.log
+gabdev-2-dev.err.log

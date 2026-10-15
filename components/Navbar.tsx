@@ -14,6 +14,10 @@ import {
   Briefcase,
   Menu,
   X,
+  MessageSquare,
+  BookOpen,
+  FolderGit2,
+  MessagesSquare,
 } from "lucide-react";
 import { View } from "../App";
 import NotificationBell from "./NotificationBell";
@@ -66,6 +70,10 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
 
   const navItems: NavItem[] = [
     { label: "ACCUEIL", view: "home" as View, icon: Rocket },
+    { label: "RESSOURCES", view: "resources" as View, icon: BookOpen },
+    { label: "PROJETS", view: "projects" as View, icon: FolderGit2 },
+    { label: "FORUM", view: "forum" as View, icon: MessagesSquare },
+    { label: "CHAT", view: "messages" as View, icon: MessageSquare },
     { label: "SERVICES", view: "services" as View, icon: Briefcase },
   ];
 
@@ -230,16 +238,14 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
                 Mon Profil
               </button>
 
-              {profile?.role === "admin" && (
-                <button
-                  role="menuitem"
-                  onClick={() => { setView("dashboard"); setIsMenuOpen(false); }}
-                  className="w-full px-4 py-2.5 text-left text-[11px] font-black text-zinc-400 hover:text-white hover:bg-white/5 flex items-center gap-3 transition-colors uppercase tracking-widest"
-                >
-                  <BarChart3 className="w-4 h-4 text-purple-500" />
-                  Tableau de bord
-                </button>
-              )}
+              <button
+                role="menuitem"
+                onClick={() => { setView("dashboard"); setIsMenuOpen(false); }}
+                className="w-full px-4 py-2.5 text-left text-[11px] font-black text-zinc-400 hover:text-white hover:bg-white/5 flex items-center gap-3 transition-colors uppercase tracking-widest"
+              >
+                <BarChart3 className="w-4 h-4 text-purple-500" />
+                Back-Office & Devis
+              </button>
 
               <div className="h-px bg-white/5 my-2" />
 
@@ -375,18 +381,16 @@ const Navbar: React.FC<NavbarProps> = (props: NavbarProps) => {
                       Mon Profil
                     </button>
 
-                    {profile?.role === "admin" && (
-                      <button
-                        onClick={() => {
-                          setView("dashboard");
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className="py-3 px-4 bg-zinc-900 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:text-white flex items-center justify-center gap-2"
-                      >
-                        <BarChart3 className="w-3.5 h-3.5 text-purple-500" />
-                        Dashboard
-                      </button>
-                    )}
+                    <button
+                      onClick={() => {
+                        setView("dashboard");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="py-3 px-4 bg-zinc-900 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-300 hover:text-white flex items-center justify-center gap-2"
+                    >
+                      <BarChart3 className="w-3.5 h-3.5 text-purple-500" />
+                      Back-Office
+                    </button>
 
                     <button
                       onClick={() => {

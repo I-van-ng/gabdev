@@ -13,6 +13,15 @@ import {
   getDoc,
   updateDoc,
   increment,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot,
+  arrayUnion,
+  arrayRemove,
+  limit,
+  getDocs,
 } from "firebase/firestore";
 import firebaseConfig from "../firebase-applet-config.json";
 
@@ -205,4 +214,174 @@ export const joinCommunityGroup = async (
       });
     }
   }
+};
+
+// --- SOCIAL NETWORK FUNCTIONS ---
+
+export const createPost = async (
+  title: string,
+  content: string,
+  tags: string[],
+  group: string,
+  authorId: string,
+  authorName: string,
+  authorPhoto?: string
+) => {
+  const postsRef = collection(db, "posts");
+  await addDoc(postsRef, {
+    authorId,
+    authorName,
+    authorPhoto: authorPhoto || "",
+    title,
+    content,
+    tags,
+    group: group || "React Gabon",
+    likesCount: 0,
+    likes: [],
+    commentsCount: 0,
+    createdAt: new Date().toISOString(),
+  });
+};
+
+export const likePost = async (postId: string, userId: string) => {
+  const postRef = doc(db, "posts", postId);
+  const postSnap = await getDoc(postRef);
+  if (!postSnap.exists()) return;
+
+  const data = postSnap.data();
+  const likes = data.likes || [];
+  const hasLiked = likes.includes(userId);
+
+  await updateDoc(postRef, {
+    likes: hasLiked ? arrayRemove(userId) : arrayUnion(userId),
+    likesCount: increment(hasLiked ? -1 : 1),
+  });
+};
+
+export const addCommentToPost = async (
+  postId: string,
+  authorId: string,
+  authorName: string,
+  authorPhoto: string,
+  content: string
+) => {
+  const commentsRef = collection(db, `posts/${postId}/comments`);
+  await addDoc(commentsRef, {
+    authorId,
+    authorName,
+    authorPhoto,
+    content,
+    createdAt: new Date().toISOString(),
+  });
+
+  const postRef = doc(db, "posts", postId);
+  await updateDoc(postRef, {
+    commentsCount: increment(1),
+  });
+};
+
+export const createProject = async (
+  name: string,
+  description: string,
+  imageUrl: string,
+  demoUrl: string,
+  githubUrl: string,
+  tags: string[],
+  authorId: string,
+  authorName: string,
+  authorPhoto?: string
+) => {
+  const projectsRef = collection(db, "projects");
+  await addDoc(projectsRef, {
+    authorId,
+    authorName,
+    authorPhoto: authorPhoto || "",
+    name,
+    description,
+    imageUrl: imageUrl || "https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=800&auto=format&fit=crop",
+    demoUrl,
+    githubUrl,
+    tags,
+    likesCount: 0,
+    likes: [],
+    commentsCount: 0,
+    createdAt: new Date().toISOString(),
+  });
+};
+
+export const likeProject = async (projectId: string, userId: string) => {
+  const projectRef = doc(db, "projects", projectId);
+  const projectSnap = await getDoc(projectRef);
+  if (!projectSnap.exists()) return;
+
+  const data = projectSnap.data();
+  const likes = data.likes || [];
+  const hasLiked = likes.includes(userId);
+
+  await updateDoc(projectRef, {
+    likes: hasLiked ? arrayRemove(userId) : arrayUnion(userId),
+    likesCount: increment(hasLiked ? -1 : 1),
+  });
+};
+
+export const addCommentToProject = async (
+  projectId: string,
+  authorId: string,
+  authorName: string,
+  authorPhoto: string,
+  content: string
+) => {
+  const commentsRef = collection(db, `projects/${projectId}/comments`);
+  await addDoc(commentsRef, {
+    authorId,
+    authorName,
+    authorPhoto,
+    content,
+    createdAt: new Date().toISOString(),
+  });
+
+  const projectRef = doc(db, "projects", projectId);
+  await updateDoc(projectRef, {
+    commentsCount: increment(1),
+  });
+};
+
+export const sendCommunityMessage = async (
+  senderId: string,
+  senderName: string,
+  senderPhoto: string,
+  text: string
+) => {
+  const messagesRef = collection(db, "community_messages");
+  await addDoc(messagesRef, {
+    senderId,
+    senderName,
+    senderPhoto: senderPhoto || "",
+    text,
+    createdAt: new Date().toISOString(),
+  });
+};
+
+export const listenToCommunityMessages = (
+  callback: (messages: any[]) => void,
+  errorCallback?: (error: any) => void
+) => {
+  const q = query(
+    collection(db, "community_messages"),
+    orderBy("createdAt", "asc")
+  );
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const messages = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      callback(messages);
+    },
+    (error) => {
+      console.error("Firestore listen error:", error);
+      if (errorCallback) errorCallback(error);
+    }
+  );
 };

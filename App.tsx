@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import Navbar from './components/Navbar';
@@ -7,22 +7,27 @@ import Hero from './components/Hero';
 import CreatorBio from './components/CreatorBio';
 import JoinHub from './components/JoinHub';
 import Footer from './components/Footer';
-import AIChat from './components/AIChat';
-import Profile from './components/Profile';
-import Dashboard from './components/Dashboard';
 import ViewLayout from './components/ViewLayout';
-import Services from './components/Services';
 import CommandPalette from './components/CommandPalette';
 import { useAuth } from './context/AuthContext';
 import Loader from './components/Loader';
-import { User, BarChart3, Briefcase, ArrowUp } from 'lucide-react';
+import { User, BarChart3, Briefcase, ArrowUp, MessageSquare, BookOpen, FolderGit2, MessagesSquare } from 'lucide-react';
 
-export type View = 'home' | 'profile' | 'dashboard' | 'services';
+const AIChat = lazy(() => import('./components/AIChat'));
+const Profile = lazy(() => import('./components/Profile'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const Services = lazy(() => import('./components/Services'));
+const Messages = lazy(() => import('./components/Messages'));
+const Resources = lazy(() => import('./components/Resources'));
+const Projects = lazy(() => import('./components/Projects'));
+const Forum = lazy(() => import('./components/Forum'));
+
+export type View = 'home' | 'resources' | 'projects' | 'forum' | 'messages' | 'profile' | 'dashboard' | 'services';
 
 // Initialisation à partir du hash de l'URL
 const getInitialView = (): View => {
   const hash = window.location.hash.replace('#/', '');
-  const validViews: View[] = ['home', 'profile', 'dashboard', 'services'];
+  const validViews: View[] = ['home', 'resources', 'projects', 'forum', 'messages', 'profile', 'dashboard', 'services'];
   return validViews.includes(hash as View) ? (hash as View) : 'home';
 };
 
@@ -35,11 +40,11 @@ const AppContent: React.FC = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
-  // Forcer la chargeuse à s'afficher pendant au moins 5 secondes
+  // Forcer la chargeuse à s'afficher pendant au moins 1 seconde
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsMinLoading(false);
-    }, 5000);
+    }, 1000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -65,7 +70,7 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#/', '');
-      const validViews: View[] = ['home', 'profile', 'dashboard', 'services'];
+      const validViews: View[] = ['home', 'resources', 'projects', 'forum', 'messages', 'profile', 'dashboard', 'services'];
       if (validViews.includes(hash as View)) {
         setCurrentView(hash as View);
       }
@@ -110,16 +115,46 @@ const AppContent: React.FC = () => {
             <JoinHub onGoToServices={() => setCurrentView('services')} />
           </>
         );
+      case 'resources':
+        return (
+          <Suspense fallback={<Loader text="Chargement des ressources..." fullPage={true} />}>
+            <Resources />
+          </Suspense>
+        );
+      case 'projects':
+        return (
+          <Suspense fallback={<Loader text="Chargement des projets..." fullPage={true} />}>
+            <Projects />
+          </Suspense>
+        );
+      case 'forum':
+        return (
+          <Suspense fallback={<Loader text="Chargement du forum..." fullPage={true} />}>
+            <Forum />
+          </Suspense>
+        );
+      case 'messages':
+        return (
+          <ViewLayout title="Messagerie communautaire" subtitle="Discutez en direct et échangez sur les technologies de pointe." accentColor="green" icon={<MessageSquare className="w-6 h-6 text-green-500" />}>
+            <Suspense fallback={<Loader text="Connexion au chat..." />}>
+              <Messages />
+            </Suspense>
+          </ViewLayout>
+        );
       case 'profile':
         return (
-          <ViewLayout title="Profil Hacker" subtitle="Gérez vos réglages, badges et contributions communautaires." accentColor="green" icon={<User className="w-6 h-6 text-green-500" />}>
-            <Profile />
+          <ViewLayout title="Profil Hacker" subtitle="Gerez vos reglages, badges et contributions communautaires." accentColor="green" icon={<User className="w-6 h-6 text-green-500" />}>
+            <Suspense fallback={<Loader text="Chargement du profil..." />}>
+              <Profile />
+            </Suspense>
           </ViewLayout>
         );
       case 'dashboard':
         return (
           <ViewLayout title="Console Pilote" subtitle="Le centre de contrôle de votre activité sur le hub." accentColor="green" icon={<BarChart3 className="w-6 h-6 text-green-500" />}>
-            <Dashboard />
+            <Suspense fallback={<Loader text="Chargement de la console..." />}>
+              <Dashboard />
+            </Suspense>
           </ViewLayout>
         );
       case 'services':
@@ -130,7 +165,9 @@ const AppContent: React.FC = () => {
             accentColor="blue" 
             icon={<Briefcase className="w-6 h-6 text-blue-500" />}
           >
-            <Services />
+            <Suspense fallback={<Loader text="Chargement des prestations..." />}>
+              <Services />
+            </Suspense>
           </ViewLayout>
         );
       default:
@@ -182,15 +219,19 @@ const AppContent: React.FC = () => {
         </button>
       )}
 
-      <AIChat 
-        isOpen={isChatOpen} 
-        onClose={() => {
-          setIsChatOpen(false);
-          setChatContext(undefined);
-        }} 
-        initialContext={chatContext}
-        currentView={currentView}
-      />
+      {isChatOpen && (
+        <Suspense fallback={null}>
+          <AIChat 
+            isOpen={isChatOpen} 
+            onClose={() => {
+              setIsChatOpen(false);
+              setChatContext(undefined);
+            }} 
+            initialContext={chatContext}
+            currentView={currentView}
+          />
+        </Suspense>
+      )}
 
       <CommandPalette 
         isOpen={isPaletteOpen} 

@@ -74,3 +74,66 @@ export interface Reminder {
   notified: boolean;
 }
 
+export interface Post {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorPhoto?: string;
+  title: string;
+  content: string;
+  tags: string[];
+  group?: string; // React Gabon, Flutter, Débutants, Freelance, IA
+  likesCount: number;
+  likes?: string[]; // user UIDs who liked
+  commentsCount: number;
+  createdAt: string; // ISO String
+}
+
+export interface Project {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorPhoto?: string;
+  name: string;
+  description: string;
+  demoUrl?: string;
+  githubUrl?: string;
+  imageUrl?: string;
+  tags: string[];
+  likesCount: number;
+  likes?: string[]; // user UIDs who liked
+  commentsCount: number;
+  createdAt: string; // ISO String
+}
+
+export interface Comment {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorPhoto?: string;
+  content: string;
+  createdAt: string; // ISO String
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderPhoto?: string;
+  text: string;
+  createdAt: string; // ISO String
+}
+
+export interface Inquiry {
+  id: string;
+  name: string;
+  contact: string;
+  service: string;
+  description: string;
+  status: 'nouveau' | 'en_cours' | 'traite' | 'archive';
+  createdAt: string;
+  budget?: string;
+  notes?: string;
+}
+
+

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Search, Rocket, Briefcase, 
-  User, Terminal, X 
+  User, Terminal, X,
+  BookOpen, FolderGit2, MessagesSquare, MessageSquare, BarChart3
 } from "lucide-react";
 import { View } from "../App";
 
@@ -58,11 +59,46 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, setVie
       action: () => { setView("home"); onClose(); }
     },
     {
+      id: "resources",
+      label: "Ressources & Tutoriels Tech (Airtel, Moov, Regex)",
+      category: "Navigation",
+      icon: <BookOpen className="w-4 h-4 text-blue-500" />,
+      action: () => { setView("resources"); onClose(); }
+    },
+    {
+      id: "projects",
+      label: "Showcase Projets & Réalisations",
+      category: "Navigation",
+      icon: <FolderGit2 className="w-4 h-4 text-green-400" />,
+      action: () => { setView("projects"); onClose(); }
+    },
+    {
+      id: "forum",
+      label: "Forum Questions & Réponses Tech",
+      category: "Navigation",
+      icon: <MessagesSquare className="w-4 h-4 text-blue-400" />,
+      action: () => { setView("forum"); onClose(); }
+    },
+    {
+      id: "messages",
+      label: "Messagerie & Chat en direct",
+      category: "Navigation",
+      icon: <MessageSquare className="w-4 h-4 text-emerald-400" />,
+      action: () => { setView("messages"); onClose(); }
+    },
+    {
       id: "services",
-      label: "Explorer les Prestations & Services",
+      label: "Explorer les Prestations & Demander un Devis",
       category: "Navigation",
       icon: <Briefcase className="w-4 h-4 text-blue-500" />,
       action: () => { setView("services"); onClose(); }
+    },
+    {
+      id: "dashboard",
+      label: "Console Back-Office & Gestion des Devis",
+      category: "Administration",
+      icon: <BarChart3 className="w-4 h-4 text-purple-400" />,
+      action: () => { setView("dashboard"); onClose(); }
     },
     {
       id: "profile",
