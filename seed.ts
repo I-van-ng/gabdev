@@ -170,28 +170,6 @@ const seedData = async () => {
           imageUrl: "/elam-sante.jpg",
           tags: ["e-Santé", "PWA", "React", "Leaflet", "Vite", "Géolocalisation"],
           createdAt: new Date().toISOString()
-        },
-        {
-          authorId: "seed-user-1",
-          authorName: "Ivan Ndoumba Nguia",
-          name: "Plateforme GABdev v2.5",
-          description: "La plateforme communautaire de l'élite tech gabonaise, regroupant un forum, un showcase de projets, un assistant IA et un hub d'apprentissage en ligne.",
-          demoUrl: "http://localhost:3000",
-          githubUrl: "https://github.com/gabdev/gabdev-platform",
-          imageUrl: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=800&auto=format&fit=crop",
-          tags: ["React", "Vite", "Firebase", "NodeJS"],
-          createdAt: new Date().toISOString()
-        },
-        {
-          authorId: "seed-user-3",
-          authorName: "Grace Ovono",
-          name: "Lib Gabon Pay (Airtel/Moov SDK)",
-          description: "Un SDK léger en Node.js et Dart/Flutter pour simplifier l'intégration des flux de paiement par push USSD Airtel et Moov.",
-          demoUrl: "https://pub.dev",
-          githubUrl: "https://github.com/grace/lib-gabon-pay",
-          imageUrl: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=800&auto=format&fit=crop",
-          tags: ["Fintech", "SDK", "Flutter", "NodeJS"],
-          createdAt: new Date().toISOString()
         }
       ];
 

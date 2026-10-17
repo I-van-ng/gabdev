@@ -46,64 +46,24 @@ const INITIAL_MOCK_PROJECTS: Project[] = [
     createdAt: new Date().toISOString(),
     isOfficial: true,
   },
-  {
-    id: "proj-1",
-    authorId: "ivan-1",
-    authorName: "Ivan Ndoumba Nguia",
-    authorPhoto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ivan",
-    name: "GABdev Platform v2.5",
-    description:
-      "La plateforme d'élite de la tech gabonaise : messagerie temps réel, assistant IA MBOLO-IA, showcase de projets, bibliothèque de tutoriels et prestations numériques.",
-    demoUrl: "https://gabdev.ga",
-    githubUrl: "https://github.com/gabdev/gabdev-platform",
-    imageUrl:
-      "https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=800&auto=format&fit=crop",
-    tags: ["React", "Vite", "Firebase", "Gemini IA", "Tailwind"],
-    likesCount: 24,
-    likes: [],
-    commentsCount: 8,
-    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-    isOfficial: true,
-  },
-  {
-    id: "proj-2",
-    authorId: "grace-2",
-    authorName: "Grace Ovono",
-    authorPhoto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Grace",
-    name: "Lib Gabon Pay (Airtel & Moov SDK)",
-    description:
-      "Un package Flutter et Node.js open-source pour intégrer rapidement les paiements mobiles Airtel Money et Moov Money au Gabon avec validation automatique des numéros.",
-    demoUrl: "https://pub.dev",
-    githubUrl: "https://github.com/gabdev/lib-gabon-pay",
-    imageUrl:
-      "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=800&auto=format&fit=crop",
-    tags: ["Flutter", "Fintech", "Mobile Money", "Node.js"],
-    likesCount: 19,
-    likes: [],
-    commentsCount: 5,
-    createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-  },
-  {
-    id: "proj-3",
-    authorId: "arnold-3",
-    authorName: "Arnold Mba",
-    authorPhoto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Arnold",
-    name: "SantéGab Connect",
-    description:
-      "Solution mobile et PWA de carnet de santé numérique et de géolocalisation des pharmacies de garde à Libreville, Owendo et Akanda.",
-    demoUrl: "https://santegab.ga",
-    githubUrl: "https://github.com/gabdev/santegab-connect",
-    imageUrl:
-      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=800&auto=format&fit=crop",
-    tags: ["PWA", "Next.js", "Leaflet", "PostgreSQL"],
-    likesCount: 15,
-    likes: [],
-    commentsCount: 3,
-    createdAt: new Date(Date.now() - 86400000 * 12).toISOString(),
-  },
 ];
 
-const STORAGE_PROJECTS_KEY = "gabdev_community_projects_cache_v2";
+const REMOVED_PROJECT_IDS = new Set(["proj-1", "proj-2", "proj-3"]);
+const REMOVED_PROJECT_NAMES = new Set([
+  "GABdev Platform v2.5",
+  "Plateforme GABdev v2.5",
+  "Lib Gabon Pay (Airtel & Moov SDK)",
+  "Lib Gabon Pay (Airtel/Moov SDK)",
+  "SantéGab Connect",
+]);
+
+const sanitizeProjects = (list: Project[]): Project[] => {
+  return list.filter(
+    (p) => !REMOVED_PROJECT_IDS.has(p.id) && !REMOVED_PROJECT_NAMES.has(p.name)
+  );
+};
+
+const STORAGE_PROJECTS_KEY = "gabdev_community_projects_cache_v3";
 
 const Projects: React.FC = () => {
   const { user, profile } = useAuth();
@@ -111,16 +71,13 @@ const Projects: React.FC = () => {
     try {
       const cached = localStorage.getItem(STORAGE_PROJECTS_KEY);
       if (cached) {
-        const parsed: Project[] = JSON.parse(cached);
+        const parsed: Project[] = sanitizeProjects(JSON.parse(cached));
         const missingInitial = INITIAL_MOCK_PROJECTS.filter(
           (init) => !parsed.some((p) => p.id === init.id || p.name === init.name)
         );
-        if (missingInitial.length > 0) {
-          const updated = [...missingInitial, ...parsed];
-          localStorage.setItem(STORAGE_PROJECTS_KEY, JSON.stringify(updated));
-          return updated;
-        }
-        return parsed;
+        const updated = sanitizeProjects([...missingInitial, ...parsed]);
+        localStorage.setItem(STORAGE_PROJECTS_KEY, JSON.stringify(updated));
+        return updated;
       }
     } catch (e) {
       console.warn("Could not parse cached projects:", e);
@@ -158,10 +115,11 @@ const Projects: React.FC = () => {
                 ...(docSnap.data() as any),
               })
             );
+            const filteredList = sanitizeProjects(list);
             const missing = INITIAL_MOCK_PROJECTS.filter(
-              (m) => !list.some((p) => p.id === m.id || p.name === m.name)
+              (m) => !filteredList.some((p) => p.id === m.id || p.name === m.name)
             );
-            const combined = [...missing, ...list];
+            const combined = sanitizeProjects([...missing, ...filteredList]);
             setProjects(combined);
             localStorage.setItem(STORAGE_PROJECTS_KEY, JSON.stringify(combined));
           }
@@ -183,7 +141,7 @@ const Projects: React.FC = () => {
   }, []);
 
   // Filter tags
-  const allTags = ["TOUS", "e-Santé", "React", "PWA", "Leaflet", "Flutter", "Fintech", "Mobile Money", "Gemini IA", "Node.js"];
+  const allTags = ["TOUS", "e-Santé", "PWA", "React", "Leaflet", "Vite", "Géolocalisation"];
 
   const filteredProjects = projects.filter((project) => {
     const matchTag =
