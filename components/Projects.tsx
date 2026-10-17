@@ -30,6 +30,23 @@ import { motion, AnimatePresence } from "motion/react";
 
 const INITIAL_MOCK_PROJECTS: Project[] = [
   {
+    id: "proj-elam",
+    authorId: "gabdev-team",
+    authorName: "GABdev (Réalisation Officielle)",
+    authorPhoto: "https://api.dicebear.com/7.x/identicon/svg?seed=GABdev",
+    name: "ELAM Santé — Le Waze de la Santé au Gabon",
+    description:
+      "Plateforme web et PWA de cartographie intelligente des structures sanitaires au Gabon : hôpitaux, cliniques et pharmacies de garde en temps réel avec géolocalisation et calcul d'itinéraires.",
+    demoUrl: "https://elam-cpkl.vercel.app/",
+    imageUrl: "/elam-sante.jpg",
+    tags: ["e-Santé", "PWA", "React", "Leaflet", "Vite", "Géolocalisation"],
+    likesCount: 38,
+    likes: [],
+    commentsCount: 12,
+    createdAt: new Date().toISOString(),
+    isOfficial: true,
+  },
+  {
     id: "proj-1",
     authorId: "ivan-1",
     authorName: "Ivan Ndoumba Nguia",
@@ -46,6 +63,7 @@ const INITIAL_MOCK_PROJECTS: Project[] = [
     likes: [],
     commentsCount: 8,
     createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+    isOfficial: true,
   },
   {
     id: "proj-2",
@@ -85,13 +103,29 @@ const INITIAL_MOCK_PROJECTS: Project[] = [
   },
 ];
 
-const STORAGE_PROJECTS_KEY = "gabdev_community_projects_cache";
+const STORAGE_PROJECTS_KEY = "gabdev_community_projects_cache_v2";
 
 const Projects: React.FC = () => {
   const { user, profile } = useAuth();
   const [projects, setProjects] = useState<Project[]>(() => {
-    const cached = localStorage.getItem(STORAGE_PROJECTS_KEY);
-    return cached ? JSON.parse(cached) : INITIAL_MOCK_PROJECTS;
+    try {
+      const cached = localStorage.getItem(STORAGE_PROJECTS_KEY);
+      if (cached) {
+        const parsed: Project[] = JSON.parse(cached);
+        const missingInitial = INITIAL_MOCK_PROJECTS.filter(
+          (init) => !parsed.some((p) => p.id === init.id || p.name === init.name)
+        );
+        if (missingInitial.length > 0) {
+          const updated = [...missingInitial, ...parsed];
+          localStorage.setItem(STORAGE_PROJECTS_KEY, JSON.stringify(updated));
+          return updated;
+        }
+        return parsed;
+      }
+    } catch (e) {
+      console.warn("Could not parse cached projects:", e);
+    }
+    return INITIAL_MOCK_PROJECTS;
   });
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -124,8 +158,12 @@ const Projects: React.FC = () => {
                 ...(docSnap.data() as any),
               })
             );
-            setProjects(list);
-            localStorage.setItem(STORAGE_PROJECTS_KEY, JSON.stringify(list));
+            const missing = INITIAL_MOCK_PROJECTS.filter(
+              (m) => !list.some((p) => p.id === m.id || p.name === m.name)
+            );
+            const combined = [...missing, ...list];
+            setProjects(combined);
+            localStorage.setItem(STORAGE_PROJECTS_KEY, JSON.stringify(combined));
           }
           setLoading(false);
         },
@@ -145,7 +183,7 @@ const Projects: React.FC = () => {
   }, []);
 
   // Filter tags
-  const allTags = ["TOUS", "React", "Flutter", "Fintech", "Mobile Money", "Gemini IA", "Node.js", "PWA"];
+  const allTags = ["TOUS", "e-Santé", "React", "PWA", "Leaflet", "Flutter", "Fintech", "Mobile Money", "Gemini IA", "Node.js"];
 
   const filteredProjects = projects.filter((project) => {
     const matchTag =
@@ -366,6 +404,14 @@ const Projects: React.FC = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
                   
+                  {/* Badge Réalisation GABdev */}
+                  {(project.isOfficial || project.id === 'proj-elam' || project.authorName?.toLowerCase().includes("gabdev")) && (
+                    <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 bg-[#22c55e] text-black text-[10px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full shadow-lg shadow-green-500/30">
+                      <Sparkles className="w-3 h-3 fill-black text-black" />
+                      Réalisation GABdev
+                    </div>
+                  )}
+
                   {/* Badges Tags sur l'image */}
                   <div className="absolute bottom-3 left-3 right-3 flex flex-wrap gap-1.5">
                     {project.tags?.slice(0, 3).map((t) => (
@@ -415,9 +461,9 @@ const Projects: React.FC = () => {
                           href={project.demoUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs font-bold text-white hover:text-green-400 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg transition-colors"
+                          className="inline-flex items-center gap-1.5 text-xs font-bold text-white hover:text-black hover:bg-[#22c55e] bg-white/5 px-3 py-1.5 rounded-lg transition-all"
                         >
-                          Démo
+                          Visiter
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                       )}

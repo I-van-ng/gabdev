@@ -104,6 +104,7 @@ export interface Project {
   likes?: string[]; // user UIDs who liked
   commentsCount: number;
   createdAt: string; // ISO String
+  isOfficial?: boolean;
 }
 
 export interface Comment {

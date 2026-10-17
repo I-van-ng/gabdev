@@ -162,6 +162,16 @@ const seedData = async () => {
       console.log("➡️ Ajout de projets vitrines...");
       const sampleProjects = [
         {
+          authorId: "gabdev-team",
+          authorName: "GABdev (Réalisation)",
+          name: "ELAM Santé — Le Waze de la Santé au Gabon",
+          description: "Plateforme web et PWA innovante de cartographie et géolocalisation en temps réel des structures de santé au Gabon (hôpitaux, cliniques, pharmacies de garde).",
+          demoUrl: "https://elam-cpkl.vercel.app/",
+          imageUrl: "/elam-sante.jpg",
+          tags: ["e-Santé", "PWA", "React", "Leaflet", "Vite", "Géolocalisation"],
+          createdAt: new Date().toISOString()
+        },
+        {
           authorId: "seed-user-1",
           authorName: "Ivan Ndoumba Nguia",
           name: "Plateforme GABdev v2.5",
